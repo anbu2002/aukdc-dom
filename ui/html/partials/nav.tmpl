@@ -1,0 +1,21 @@
+{{define "nav"}}
+<nav>
+<div>
+<a href='/'>Home</a>
+{{if .IsAuthenticated}}
+<a href='/honorarium/create'>Create Event</a>
+{{end}}
+</div>
+<div>
+{{if .IsAuthenticated}}
+<form action='/faculty/logout' method='POST'>
+<input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+<button>Logout</button>
+</form>
+{{else}}
+<a href='/faculty/signup'>Signup</a>
+<a href='/faculty/login'>Login</a>
+{{end}}
+</div>
+</nav>
+{{end}}

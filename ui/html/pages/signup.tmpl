@@ -1,0 +1,6 @@
+{{define "title"}}Signup{{end}}
+{{define "main"}}
+<form action='/faculty/signup' method='POST' novalidate>
+<input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+</form>
+{{end}}

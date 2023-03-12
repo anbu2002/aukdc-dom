@@ -1,0 +1,15 @@
+module aukdc.dom.com
+
+go 1.19
+
+require github.com/lib/pq v1.10.7
+
+require (
+	github.com/alexedwards/scs/postgresstore v0.0.0-20221206171621-0f0849773278 // indirect
+	github.com/alexedwards/scs/v2 v2.5.0 // indirect
+	github.com/go-playground/form/v4 v4.2.0 // indirect
+	github.com/julienschmidt/httprouter v1.3.0 // indirect
+	github.com/justinas/alice v1.2.0 // indirect
+	github.com/justinas/nosurf v1.1.1 // indirect
+	golang.org/x/crypto v0.4.0 // indirect
+)
