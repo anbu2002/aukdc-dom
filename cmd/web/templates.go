@@ -13,7 +13,7 @@ import (
 type templateData struct {
 	CurrentYear int
 	Honorarium *models.Honorarium
-	Honorariums []*models.Honorarium
+	Honoraria []*models.Honorarium
 	Form any
 	Flash string
 	IsAuthenticated bool

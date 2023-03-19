@@ -21,8 +21,6 @@ func (app *application) routes() http.Handler {
 
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
-	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
-	router.Handler(http.MethodGet, "/honorarium/view/:id", dynamic.ThenFunc(app.honorariumView))
 	router.Handler(http.MethodGet, "/faculty/signup", dynamic.ThenFunc(app.facultySignup))
 	router.Handler(http.MethodPost, "/faculty/signup", dynamic.ThenFunc(app.facultySignupPost))
 	router.Handler(http.MethodGet, "/faculty/login", dynamic.ThenFunc(app.facultyLogin))
@@ -30,6 +28,8 @@ func (app *application) routes() http.Handler {
 
 	protected := dynamic.Append(app.requireAuthentication)
 
+	router.Handler(http.MethodGet, "/", protected.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/honorarium/view/:id", protected.ThenFunc(app.honorariumView))
 	router.Handler(http.MethodGet, "/honorarium/create", protected.ThenFunc(app.honorariumCreate))
 	router.Handler(http.MethodPost, "/honorarium/create", protected.ThenFunc(app.honorariumCreatePost))
 	router.Handler(http.MethodPost, "/faculty/logout", protected.ThenFunc(app.facultyLogoutPost))

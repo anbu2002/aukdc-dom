@@ -1,4 +1,8 @@
 {{define "title"}}Home{{end}}
 {{define "main"}}
-<h2>Add page</h2>
+{{if .Honoraria}}
+<!-- html to display honoraria -->
+{{else}}
+<h2>Please create a new honorarium</h2>
+{{end}}
 {{end}}

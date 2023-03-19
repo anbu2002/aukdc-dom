@@ -1,6 +1,105 @@
 {{define "title"}}Signup{{end}}
 {{define "main"}}
+
 <form action='/faculty/signup' method='POST' novalidate>
 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+
+<div>
+<label>Faculty ID:</label>
+{{with .Form.FieldErrors.facultyid}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='facultyid' value='{{.Form.FacultyID}}'>
+</div>
+
+<div>
+<label>Name:</label>
+{{with .Form.FieldErrors.name}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='name' value='{{.Form.Name}}'>
+</div>
+
+
+<div>
+<label>Phone Number:</label>
+{{with .Form.FieldErrors.phone}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='tel' name='phone' value='{{.Form.Phone}}'>
+</div>
+
+<div>
+<label>Email:</label>
+{{with .Form.FieldErrors.email}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='email' value='{{.Form.Email}}'>
+</div>
+
+<div>
+<label>Extension Number:</label>
+{{with .Form.FieldErrors.extnumber}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='tel' name='extnumber' value='{{.Form.Extension}}'>
+</div>
+
+<div>
+<label>Department:</label>
+{{with .Form.FieldErrors.dept}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='dept' value='{{.Form.Department}}'>
+</div>
+
+<div>
+<label>Faculty Type:</label>
+<input type='radio' name='facultytype' value='Permanent' required> Permanent
+<input type='radio' name='facultytype' value='Visiting'required> Visiting
+</div>
+
+<div>
+<label>Designation:</label>
+{{with .Form.FieldErrors.designation}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='designation' value='{{.Form.Designation}}'>
+</div>
+
+<div>
+<label>PanID:</label>
+{{with .Form.FieldErrors.panid}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='panid' value='{{.Form.PanID}}'>
+</div>
+
+<div>
+<label>Pan Picture:</label>
+{{with .Form.FieldErrors.panpic}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='file' name='panpic' value='{{.Form.PanPicture}}' disabled>
+</div>
+
+<div>
+<label>E-sign:</label>
+{{with .Form.FieldErrors.esign}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='file' name='esign' value='{{.Form.Esign}}' disabled>
+</div>
+
+<div>
+<label>Password:</label>
+{{with .Form.FieldErrors.password}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='password' name='password'>
+</div>
+<div>
+<input type='submit' value='Signup'>
+</div>
 </form>
 {{end}}

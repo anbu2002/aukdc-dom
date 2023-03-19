@@ -8,14 +8,17 @@
 {{end}}
 <div>
 <label>FacultyID:</label>
-<input type='text' name='facid' value='{{.Form.FacultyID}}'>
+{{with .Form.FieldErrors.facultyid}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='facultyid' value='{{.Form.FacultyID}}'>
 </div>
 <div>
 <label>Password:</label>
 {{with .Form.FieldErrors.password}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='password' name='passd'>
+<input type='password' name='password'>
 </div>
 <div>
 <input type='submit' value='Login'>

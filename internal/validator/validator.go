@@ -60,3 +60,6 @@ func MinChars(value string, n int) bool {
 func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
 }
+func IntegerRange(value int64, min, max int64) bool {
+        return value <= max && value >= min
+}
