@@ -7,7 +7,7 @@ CREATE TABLE Faculty
     "Name" character varying NOT NULL,
     "PhoneNumber" bigint NOT NULL CHECK ("PhoneNumber" BETWEEN 6000000000 AND 9999999999),
     "Email" character varying NOT NULL,
-    "FacultyType" character varying NOT NULL CHECK ("FacultyType" in ('Permanent','Visiting Faulty')),
+    "FacultyType" character varying NOT NULL CHECK ("FacultyType" in ('Permanent','Visiting')),
     "Department" character varying NOT NULL,
     "Designation" character varying NOT NULL,
     "Password" character varying NOT NULL,

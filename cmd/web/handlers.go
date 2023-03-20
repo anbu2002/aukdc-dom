@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 //	"strconv"
-//	"fmt"
+	"fmt"
 	"time"
 
 	"aukdc.dom.com/internal/models"
@@ -12,6 +12,8 @@ import (
 
 //	"github.com/julienschmidt/httprouter"
 )
+
+//Please change the data types of picture variables.
 type facultySignupForm struct{
 	FacultyID string `form:"facultyid"`
 	Name string `form:"name"`
@@ -27,7 +29,6 @@ type facultySignupForm struct{
 	Esign any `form:"esign"`
 	validator.Validator `form:"-"`
 }
-//Please change the data types of picture variables.
 
 type facultyLoginForm struct{
 	FacultyID string `form:"facultyid"`
@@ -159,6 +160,7 @@ func (app *application) facultyLoginPost(w http.ResponseWriter, r *http.Request)
 		app.serverError(w, err)
 		return
 	}
+	fmt.Println(id)
 	app.sessionManager.Put(r.Context(),"authenticatedFacultyID",id)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

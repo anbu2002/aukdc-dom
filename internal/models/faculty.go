@@ -47,7 +47,7 @@ func (m *FacultyModel) Insert(facultyID, name string, phoneNumber int64, email, 
 	}
 	return nil
 }
-
+//Confirm ID datatype
 func (m *FacultyModel) Authenticate(facultyID, password string) (int, error) {
 	var id int
 	var hashedPassword []byte
