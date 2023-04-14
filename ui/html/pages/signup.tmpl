@@ -9,7 +9,7 @@
 {{with .Form.FieldErrors.facultyid}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='facultyid' value='{{.Form.FacultyID}}'>
+<input type='number' name='facultyid' value='' required>
 </div>
 
 <div>
@@ -17,7 +17,7 @@
 {{with .Form.FieldErrors.name}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='name' value='{{.Form.Name}}'>
+<input type='text' name='name' value='{{.Form.Name}}' required>
 </div>
 
 
@@ -26,7 +26,7 @@
 {{with .Form.FieldErrors.phone}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='tel' name='phone' value='{{.Form.Phone}}'>
+<input type='tel' name='phone' value='{{.Form.Phone}}' required>
 </div>
 
 <div>
@@ -34,7 +34,7 @@
 {{with .Form.FieldErrors.email}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='email' value='{{.Form.Email}}'>
+<input type='text' name='email' value='{{.Form.Email}}' required>
 </div>
 
 <div>
@@ -42,7 +42,7 @@
 {{with .Form.FieldErrors.extnumber}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='tel' name='extnumber' value='{{.Form.Extension}}'>
+<input type='tel' name='extnumber' value='{{.Form.Extension}}' required>
 </div>
 
 <div>
@@ -50,13 +50,20 @@
 {{with .Form.FieldErrors.dept}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='dept' value='{{.Form.Department}}'>
-</div>
+<input type='text' name='dept' value='{{.Form.Department}}' required>
+</div> 
 
 <div>
 <label>Faculty Type:</label>
-<input type='radio' name='facultytype' value='Permanent' required> Permanent
-<input type='radio' name='facultytype' value='Visiting'required> Visiting
+{{with .Form.FieldErrors.facultytype}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="facultytype">
+  <option disabled selected value> Select an option </option>
+  <option value="Permanent">Permanent</option>
+  <option value="Visiting">Visiting</option>
+  <option value="Guest/Contract">Contract/Guest</option>
+</select>
 </div>
 
 <div>
@@ -64,7 +71,13 @@
 {{with .Form.FieldErrors.designation}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='designation' value='{{.Form.Designation}}'>
+<select name="designation">
+  <option disabled selected value value=''> Select an option </option>
+  <option value="Professor">Professor</option>
+  <option value="Assistant Professor">Assistant Professor</option>
+  <option value="Associate Professor">Associate Professor</option>
+  <option value="Teaching Fellow">Teaching Fellow</option>
+</select>
 </div>
 
 <div>
@@ -72,7 +85,7 @@
 {{with .Form.FieldErrors.panid}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='panid' value='{{.Form.PanID}}'>
+<input type='text' name='panid' value='{{.Form.PanID}}' required>
 </div>
 
 <div>
@@ -97,9 +110,11 @@
 <label class='error'>{{.}}</label>
 {{end}}
 <input type='password' name='password'>
+
 </div>
 <div>
 <input type='submit' value='Signup'>
 </div>
+
 </form>
 {{end}}

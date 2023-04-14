@@ -1,4 +1,5 @@
 {{define "base"}}
+{{$iaz:=.IsAuthorized}}
 <!doctype html>
 <html lang="en">
 	<head>
@@ -12,7 +13,11 @@
  <header>
    <h1><a href="/">AUKDC - Department of Mathematics</a><h1>
  </header>
+{{if $iaz}} 
+{{template "nav-admin" .}}
+{{else}}
  {{template "nav" .}}
+{{end}}
  <main>
  {{with .Flash}}
  <div class='flash'>{{.}}</div>

@@ -14,9 +14,11 @@ type templateData struct {
 	CurrentYear int
 	Honorarium *models.Honorarium
 	Honoraria []*models.Honorarium
+	Faculties []*models.Faculty
 	Form any
 	Flash string
 	IsAuthenticated bool
+	IsAuthorized bool
 	CSRFToken string
 }
 

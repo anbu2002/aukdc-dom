@@ -1,0 +1,33 @@
+{{define "title"}}Create AnsV{{end}}
+{{define "main"}}
+<form action='/honorarium/ansv/create' method='POST'>
+<input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+
+<div>
+<label>Course Code:</label>
+{{with .Form.FieldErrors.coursecode}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="coursecode">
+  <option disabled selected > Select an option </option>
+  <option value="Canara Bank">Canara Bank</option>
+  <option value="Indian Bank">Indian Bank</option>
+  <option value="State Bank of India">State Bank of India</option>
+</select>
+</div>
+
+<div>
+<label>AnswerScript Count:</label>
+{{with .Form.FieldErrors.asc}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='asc'>
+</div>
+
+
+<div>
+<input type='submit' value='Submit'>
+</div>
+
+</form>
+{{end}}

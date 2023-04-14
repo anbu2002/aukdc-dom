@@ -1,0 +1,41 @@
+{{define "title"}}Create QPK{{end}}
+{{define "main"}}
+<form action='/honorarium/qpk/create' method='POST'>
+<input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+
+<div>
+<label>Course Code:</label>
+{{with .Form.FieldErrors.coursecode}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="coursecode">
+  <option disabled selected > Select an option </option>
+  <option value="Canara Bank">Canara Bank</option>
+  <option value="Indian Bank">Indian Bank</option>
+  <option value="State Bank of India">State Bank of India</option>
+</select>
+</div>
+
+<div>
+<label>Question Paper Count:</label>
+{{with .Form.FieldErrors.qpc}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='qpc'>
+</div>
+
+<div>
+<label>Key Count:</label>
+{{with .Form.FieldErrors.kc}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='kc'>
+</div>
+
+
+<div>
+<input type='submit' value='Submit'>
+</div>
+
+</form>
+{{end}}

@@ -1,0 +1,15 @@
+{{define "nav-admin"}}
+<nav>
+<div>
+<a href='/'>Home</a>
+<a href='/honorarium'> Honorarium</a>
+<a href='/faculty'> Faculty </a>
+</div>
+<div>
+<form action='/faculty/logout' method='POST'>
+<input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+<button>Logout</button>
+</form>
+</div>
+</nav>
+{{end}}

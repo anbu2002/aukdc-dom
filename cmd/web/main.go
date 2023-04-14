@@ -21,7 +21,7 @@ import (
 type application struct{
 	errorLog *log.Logger
 	infoLog *log.Logger
-	honoraria *models.HonorariumModel
+	honorarium *models.HonorariumModel
 	faculty *models.FacultyModel
 	templateCache map[string]*template.Template
 	formDecoder *form.Decoder
@@ -60,7 +60,7 @@ func main(){
 	app:=&application{
 		errorLog:errorLog,
 		infoLog:infoLog,
-		honoraria:&models.HonorariumModel{DB: db},
+		honorarium:&models.HonorariumModel{DB: db},
 		faculty:&models.FacultyModel{DB: db},
 		templateCache: templateCache,
 		formDecoder:formDecoder,

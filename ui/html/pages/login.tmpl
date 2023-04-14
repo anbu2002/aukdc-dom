@@ -7,11 +7,11 @@
 <div class='error'>{{.}}</div>
 {{end}}
 <div>
-<label>FacultyID:</label>
+<label>ID:</label>
 {{with .Form.FieldErrors.facultyid}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='facultyid' value='{{.Form.FacultyID}}'>
+<input type='number' name='facultyid' value='{{.Form.FacultyID}}'>
 </div>
 <div>
 <label>Password:</label>

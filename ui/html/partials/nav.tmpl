@@ -2,9 +2,14 @@
 <nav>
 <div>
 <a href='/'>Home</a>
-{{if .IsAuthenticated}}
-<a href='/honorarium/create'>Create Honorarium</a>
-{{end}}
+<div class="dropdown">
+<a> Honorarium</a>
+<div class="dropdown-content">
+<a href="/honorarium/qpk/create">Question Paper/Key</a>
+<a href="/honorarium/ansv/create">Answerscript</a>
+</div>
+</div>
+
 </div>
 <div>
 {{if .IsAuthenticated}}

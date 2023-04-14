@@ -47,7 +47,7 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 		Flash: app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
 		CSRFToken: nosurf.Token(r),
-	}
+}
 }
 
 func (app *application) decodePostForm(r *http.Request, dst any) error{
@@ -74,4 +74,11 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 		return false
 	}
 	return isAuthenticated
+}
+func (app *application) isAuthorized(r *http.Request) bool {
+        isAuthorized, ok := r.Context().Value(isAuthorizedContextKey).(bool)
+        if !ok {
+                return false
+        }
+        return isAuthorized
 }

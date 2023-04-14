@@ -10,7 +10,7 @@ import (
 )
 
 type Faculty struct{
-	FacultyID string
+	FacultyID int
 	Name string
 	Phone int64
 	Email string
@@ -22,18 +22,27 @@ type Faculty struct{
 //	PanPicture
 	Extension int64
 //	Esign 
+	BankDetails 
 }
 
 type FacultyModel struct{
 	DB *sql.DB
 }
 
-func (m *FacultyModel) Insert(facultyID, name string, phoneNumber int64, email, facultyType, department, designation,  password, panID, panPicture string, extensionNumber int64, eSign string) error {
+type BankDetails struct{
+	BankName string
+	AccountNumber int
+	IFSC string
+//	Passbook 
+	Passbook string
+}
+
+func (m *FacultyModel) Insert(facultyID int, name string, phoneNumber int64, email, facultyType, department, designation,  password, panID, panPicture string, extensionNumber int64, eSign string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
 	}
-	stmt := `INSERT INTO faculty ("FacultyID","Name", "PhoneNumber", "Email", "FacultyType", "Department", "Designation", "Password","PanID", "PanPicture", "ExtensionNumber", "Esign") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+	stmt := `INSERT INTO faculty ("FacultyID","Name", "PhoneNumber", "Email", "FacultyType", "Department", "Designation", "Password","PanID", "PanPicture", "ExtensionNumber", "Esign") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);`
 	_,err=m.DB.Exec(stmt, facultyID, name, phoneNumber, email, facultyType, department, designation, string(hashedPassword), panID, panPicture, extensionNumber, eSign)
 //Add code for Faculty ID
 	if err!=nil{
@@ -47,8 +56,32 @@ func (m *FacultyModel) Insert(facultyID, name string, phoneNumber int64, email, 
 	}
 	return nil
 }
-//Confirm ID datatype
-func (m *FacultyModel) Authenticate(facultyID, password string) (int, error) {
+
+func (m *FacultyModel) InsertBankDetails(facultyID int, bankName string, accountNumber int, IFSC, passbook string) error{
+	_,err:=m.DB.Exec(`INSERT INTO account("BankName","FacultyID","AccountNumber","IFSCCode","Passbook") VALUES ($1,$2,$3,$4,$5)`,bankName,facultyID,accountNumber,IFSC,passbook)
+	if err!=nil{
+		return err
+	}
+	return nil
+	
+}
+
+func (m *FacultyModel) GetBankDetails(facultyID int) (*BankDetails, error){
+	b:=&BankDetails{}
+	stmt:=`SELECT "BankName","AccountNumber","IFSCCode","Passbook" FROM Account WHERE "FacultyID"=$1`
+	err:=m.DB.QueryRow(stmt,facultyID).Scan(&b.BankName, &b.AccountNumber, &b.IFSC, &b.Passbook)
+	if err!=nil{
+		if errors.Is(err,sql.ErrNoRows){
+			return nil, ErrNoRecord
+		} else{
+			return nil, err
+		}
+	}
+	return b, nil
+}
+
+
+func (m *FacultyModel) Authenticate(facultyID int, password string) (int, error) {
 	var id int
 	var hashedPassword []byte
 
@@ -72,6 +105,16 @@ func (m *FacultyModel) Authenticate(facultyID, password string) (int, error) {
 		}
 	}
 	return id, nil
+}
+
+func (m *FacultyModel) Authorized(id int) (bool, error){
+        var authority bool
+
+	stmt:=`SELECT EXISTS(SELECT true FROM admin WHERE "ID"=$1)`
+
+        err:=m.DB.QueryRow(stmt, id).Scan(&authority)
+
+        return authority, err
 }
 
 func (m *FacultyModel) Exists(id int) (bool, error) {
