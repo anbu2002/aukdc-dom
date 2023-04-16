@@ -79,6 +79,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
                         }
                         if authorized{
                                 ctx=context.WithValue(r.Context(), isAuthorizedContextKey, true)
+                        	r=r.WithContext(ctx)
                 		next.ServeHTTP(w, r)
 				return
                         }

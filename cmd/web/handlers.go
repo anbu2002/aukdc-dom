@@ -129,6 +129,11 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) honorariumViewAll(w http.ResponseWriter, r *http.Request) {
 	id:=app.sessionManager.Get(r.Context(),"authenticatedUserID").(int)
+/*
+	if(app.isAuthorized(r)){
+		id:=nil
+	}
+*/
 	honoraria,err:=app.honorarium.ViewAll(id)
 	if err!=nil{
 		app.serverError(w,err)
