@@ -3,10 +3,10 @@
 <div>
 <a href='/'>Home</a>
 <a href='/honorarium'> Honorarium</a>
-<a href='/faculty'> Faculty </a>
+<a href='/faculty/view'> Faculty </a>
 </div>
 <div>
-<form action='/faculty/logout' method='POST'>
+<form action='/user/logout' method='POST'>
 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
 <button>Logout</button>
 </form>

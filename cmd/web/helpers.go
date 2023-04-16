@@ -46,8 +46,9 @@ func (app *application) newTemplateData(r *http.Request) *templateData {
 		CurrentYear: time.Now().Year(),
 		Flash: app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
+		IsAuthorized: app.isAuthorized(r),
 		CSRFToken: nosurf.Token(r),
-}
+	}
 }
 
 func (app *application) decodePostForm(r *http.Request, dst any) error{
@@ -81,4 +82,11 @@ func (app *application) isAuthorized(r *http.Request) bool {
                 return false
         }
         return isAuthorized
+}
+func (app *application) isFaculty(r *http.Request) bool {
+        isFaculty, ok := r.Context().Value(isFacultyContextKey).(bool)
+        if !ok {
+                return false
+        }
+        return isFaculty
 }

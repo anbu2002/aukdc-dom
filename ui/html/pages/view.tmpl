@@ -1,3 +1,15 @@
-{{define "title"}}{{end}}
+{{define "title"}}Honorarium #{{.Honorarium.TransactionID}}{{end}}
 {{define "main"}}
+        {{with .Honorarium}}
+        <div class='event'>
+        <div class='metadata'>
+        <strong>{{.CourseCode}}</strong>
+        </div>
+        <pre><code>{{.InitialAmount}}</code></pre>
+        <pre><code>{{.FinalAmount}}</code></pre>
+        <div class='metadata'>
+        <p>Created: {{humanDate .CreatedTime}}</p>
+        </div>
+        </div>
+        {{end}}
 {{end}}

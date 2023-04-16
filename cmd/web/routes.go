@@ -23,20 +23,29 @@ func (app *application) routes() http.Handler {
 
 	router.Handler(http.MethodGet, "/faculty/signup", dynamic.ThenFunc(app.facultySignup))
 	router.Handler(http.MethodPost, "/faculty/signup", dynamic.ThenFunc(app.facultySignupPost))
-	router.Handler(http.MethodGet, "/faculty/login", dynamic.ThenFunc(app.facultyLogin))
-	router.Handler(http.MethodPost, "/faculty/login", dynamic.ThenFunc(app.facultyLoginPost))
+	router.Handler(http.MethodGet, "/user/login", dynamic.ThenFunc(app.userLogin))
+	router.Handler(http.MethodPost, "/user/login", dynamic.ThenFunc(app.userLoginPost))
 
+	
 	protected := dynamic.Append(app.requireAuthentication)
 
 	router.Handler(http.MethodGet, "/", protected.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/honorarium/view/", protected.ThenFunc(app.honorariumViewAll))
+	router.Handler(http.MethodPost, "/user/logout", protected.ThenFunc(app.userLogoutPost))
 	router.Handler(http.MethodGet, "/honorarium/view/:id", protected.ThenFunc(app.honorariumView))
-	router.Handler(http.MethodGet, "/faculty/bankdetails", protected.ThenFunc(app.addBankDetails))
-	router.Handler(http.MethodPost, "/faculty/bankdetails", protected.ThenFunc(app.addBankDetailsPost))
-	router.Handler(http.MethodGet, "/honorarium/qpk/create", protected.ThenFunc(app.qpkCreate))
-	router.Handler(http.MethodPost, "/honorarium/qpk/create", protected.ThenFunc(app.qpkCreatePost))
-	router.Handler(http.MethodGet, "/honorarium/ansv/create", protected.ThenFunc(app.ansvCreate))
-	router.Handler(http.MethodPost, "/honorarium/ansv/create", protected.ThenFunc(app.ansvCreatePost))
-	router.Handler(http.MethodPost, "/faculty/logout", protected.ThenFunc(app.facultyLogoutPost))
+	
+	faculty :=protected.Append(app.requireFaculty)
+
+	router.Handler(http.MethodGet, "/faculty/bankdetails", faculty.ThenFunc(app.addBankDetails))
+	router.Handler(http.MethodPost, "/faculty/bankdetails", faculty.ThenFunc(app.addBankDetailsPost))
+	router.Handler(http.MethodGet, "/honorarium/qpk/create", faculty.ThenFunc(app.qpkCreate))
+	router.Handler(http.MethodPost, "/honorarium/qpk/create", faculty.ThenFunc(app.qpkCreatePost))
+	router.Handler(http.MethodGet, "/honorarium/ansv/create", faculty.ThenFunc(app.ansvCreate))
+	router.Handler(http.MethodPost, "/honorarium/ansv/create", faculty.ThenFunc(app.ansvCreatePost))
+
+	authorized := protected.Append(app.requireAuthority)
+
+	router.Handler(http.MethodGet, "/faculty/view", authorized.ThenFunc(app.viewAllFaculty))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	return standard.Then(router)

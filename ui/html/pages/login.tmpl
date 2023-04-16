@@ -1,6 +1,6 @@
 {{define "title"}}Login{{end}}
 {{define "main"}}
-<form action='/faculty/login' method='POST' novalidate>
+<form action='/user/login' method='POST' novalidate>
 <!-- Include the CSRF token -->
 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
 {{range .Form.NonFieldErrors}}
@@ -11,7 +11,7 @@
 {{with .Form.FieldErrors.facultyid}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='number' name='facultyid' value='{{.Form.FacultyID}}'>
+<input type='number' name='userid' value='{{.Form.UserID}}'>
 </div>
 <div>
 <label>Password:</label>

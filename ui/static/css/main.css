@@ -229,9 +229,6 @@ button:hover {
     cursor: pointer;
 }
 
-.event {
-    background-color: #FFFFFF;
-    border: 1px solid #E4E5E7;
     border-radius: 3px;
 }
 
@@ -267,7 +264,6 @@ button:hover {
 .event .metadata time:last-child {
     float: right;
 }
-
 div.flash {
     color: #FFFFFF;
     font-weight: bold;

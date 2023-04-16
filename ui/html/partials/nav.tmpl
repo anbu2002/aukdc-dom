@@ -3,7 +3,7 @@
 <div>
 <a href='/'>Home</a>
 <div class="dropdown">
-<a> Honorarium</a>
+<a href="/honorarium/view"> Honorarium</a>
 <div class="dropdown-content">
 <a href="/honorarium/qpk/create">Question Paper/Key</a>
 <a href="/honorarium/ansv/create">Answerscript</a>
@@ -13,13 +13,13 @@
 </div>
 <div>
 {{if .IsAuthenticated}}
-<form action='/faculty/logout' method='POST'>
+<form action='/user/logout' method='POST'>
 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
 <button>Logout</button>
 </form>
 {{else}}
 <a href='/faculty/signup'>Signup</a>
-<a href='/faculty/login'>Login</a>
+<a href='/user/login'>Login</a>
 {{end}}
 </div>
 </nav>

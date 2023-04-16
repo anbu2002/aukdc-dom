@@ -22,7 +22,7 @@ type application struct{
 	errorLog *log.Logger
 	infoLog *log.Logger
 	honorarium *models.HonorariumModel
-	faculty *models.FacultyModel
+	user *models.UserModel
 	templateCache map[string]*template.Template
 	formDecoder *form.Decoder
 	sessionManager *scs.SessionManager
@@ -61,7 +61,7 @@ func main(){
 		errorLog:errorLog,
 		infoLog:infoLog,
 		honorarium:&models.HonorariumModel{DB: db},
-		faculty:&models.FacultyModel{DB: db},
+		user:&models.UserModel{DB: db},
 		templateCache: templateCache,
 		formDecoder:formDecoder,
 		sessionManager:sessionManager,
