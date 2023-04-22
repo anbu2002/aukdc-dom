@@ -320,7 +320,7 @@ func (app *application) qpkCreatePost (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	app.sessionManager.Put(r.Context(), "flash", "You have created a honorarium successfully")
-	http.Redirect(w, r, "/",http.StatusSeeOther)
+	http.Redirect(w, r, "/"+tid,http.StatusSeeOther)
 }
 
 
