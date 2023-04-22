@@ -90,3 +90,10 @@ func (app *application) isFaculty(r *http.Request) bool {
         }
         return isFaculty
 }
+func (app *application) hasBankDetails(r *http.Request) bool{
+	hasBankDetails, ok:=r.Context().Value(hasBankDetailsContextKey).(bool)
+	if !ok {
+		return false
+	}
+	return hasBankDetails
+}

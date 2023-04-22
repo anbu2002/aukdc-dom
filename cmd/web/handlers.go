@@ -70,6 +70,15 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	data:=app.newTemplateData(r)
         app.render(w, http.StatusOK, "home.tmpl", data)
 }
+func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
+	if(app.isAuthenticated(r)){
+		http.Redirect(w,r,"/",http.StatusSeeOther)
+		return
+	}
+	data:=app.newTemplateData(r)
+	data.Form=userLoginForm{}
+	app.render(w, http.StatusOK,"login.tmpl",data)
+}
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	var form userLoginForm
 
@@ -108,10 +117,10 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
                 app.serverError(w, err)
                 return
         }
+	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
         if authority {
                 app.sessionManager.Put(r.Context(), "authorizedUserID", id)
         }
-	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -127,29 +136,54 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
         http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (app *application) honorariumViewAll(w http.ResponseWriter, r *http.Request) {
+func (app *application) facultyView(w http.ResponseWriter, r *http.Request) {
 	id:=app.sessionManager.Get(r.Context(),"authenticatedUserID").(int)
-/*
+	var err error
 	if(app.isAuthorized(r)){
-		id:=nil
+		params:=httprouter.ParamsFromContext(r.Context())
+		if params==nil{
+			id=0
+		}else
+		{
+			id, err = strconv.Atoi(params.ByName("id"))
+			if err != nil{
+				app.notFound(w)
+				return
+			}
+		}
 	}
-*/
+        data:=app.newTemplateData(r)
+	if id!=0{
+		faculty,err:=app.user.GetFaculty(id)
+		if err != nil {
+			if errors.Is(err, models.ErrNoRecord) {
+				app.notFound(w)
+			} else {
+				app.serverError(w, err)
+			}
+			return
+		}
+        	data.Faculty=faculty
+	}
 	honoraria,err:=app.honorarium.ViewAll(id)
 	if err!=nil{
 		app.serverError(w,err)
 		return
 	}
-	data:=app.newTemplateData(r)
 	data.Honoraria=honoraria
-
-	app.render(w, http.StatusOK, "honorarium.tmpl",data)
+        app.render(w, http.StatusOK, "honorarium.tmpl", data)
 }
 func (app *application) honorariumView(w http.ResponseWriter, r *http.Request) {
 	params:=httprouter.ParamsFromContext(r.Context())
-
+	var honorarium *models.Honorarium
+	var err error
         tid := params.ByName("id")
 	fid:=app.sessionManager.Get(r.Context(),"authenticatedUserID").(int)
-        honorarium, err := app.honorarium.Get(fid,tid)
+	if(app.isAuthorized(r)){
+		honorarium, err=app.honorarium.GetTransactionAdmin(tid)
+	}else{
+		honorarium, err=app.honorarium.GetTransaction(fid,tid)
+	}
         if err != nil {
                 if errors.Is(err, models.ErrNoRecord) {
                         app.notFound(w)
@@ -168,6 +202,7 @@ func (app *application) honorariumView(w http.ResponseWriter, r *http.Request) {
 func (app *application) facultySignup(w http.ResponseWriter, r *http.Request) {
 	if(app.isAuthenticated(r)){
 		http.Redirect(w,r,"/",http.StatusSeeOther)
+		return
 	}
 	data:=app.newTemplateData(r)
 	data.Form=facultySignupForm{}
@@ -175,14 +210,6 @@ func (app *application) facultySignup(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
-	if(app.isAuthenticated(r)){
-		http.Redirect(w,r,"/",http.StatusSeeOther)
-	}
-	data:=app.newTemplateData(r)
-	data.Form=userLoginForm{}
-	app.render(w, http.StatusOK,"login.tmpl",data)
-}
 
 func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request) {
 	var form facultySignupForm
@@ -222,27 +249,13 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, "/user/login",http.StatusSeeOther)
 }
 func (app *application) addBankDetails(w http.ResponseWriter, r *http.Request){
+	if(app.hasBankDetails(r)){
+		app.sessionManager.Put(r.Context(), "flash", "Please request your admin to change your bank details")
+		http.Redirect(w,r,"/",http.StatusSeeOther)
+		return
+	}
 	data:=app.newTemplateData(r)
-	flag:=false
-	id:=app.sessionManager.Get(r.Context(),"authenticatedUserID").(int)
-	bd, err:=app.user.GetBankDetails(id)
-	if err!=nil{
-		if errors.Is(err, models.ErrNoRecord){
-			flag=true
-		} else{
-			app.serverError(w,err)
-			return
-		}
-	}
-	if flag{
-		data.Form = bankDetailsForm{}
-	}else {
-		data.Form = bankDetailsForm{
-			BankName:bd.BankName,
-			AccountNumber:bd.AccountNumber,
-			IFSC:bd.IFSC,
-		}
-	}
+	data.Form = bankDetailsForm{}
 	app.render(w, http.StatusOK, "bankdetails.tmpl", data)
 }
 
@@ -264,7 +277,6 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 		app.render(w, http.StatusUnprocessableEntity, "bankdetails.tmpl", data)
 		return
 	}
-	
 	err=app.user.InsertBankDetails(id,form.BankName,form.AccountNumber,form.IFSC,"Insert picture")
 	if err!=nil{
 		app.serverError(w, err)
@@ -276,6 +288,12 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 
 func (app *application) qpkCreate(w http.ResponseWriter, r *http.Request) {
         data:=app.newTemplateData(r)
+	courses,err:=app.other.GetAllCourses()
+	if err!=nil{
+		app.serverError(w, err)
+		return
+	}
+	data.Courses=courses
         data.Form = qpkCreateForm{}
         app.render(w, http.StatusOK, "qpk.tmpl", data)
 }
@@ -297,7 +315,6 @@ func (app *application) qpkCreatePost (w http.ResponseWriter, r *http.Request) {
 	}
 	
 	tid,err:=app.honorarium.InsertQPK(id, form.CourseCode,form.QuestionPaperCount, form.KeyCount)
-	fmt.Println(tid)
 	if err!=nil{
 		app.serverError(w, err)
 		return
@@ -309,8 +326,14 @@ func (app *application) qpkCreatePost (w http.ResponseWriter, r *http.Request) {
 
 func (app *application) ansvCreate(w http.ResponseWriter, r *http.Request) {
         data:=app.newTemplateData(r)
-        data.Form = ansvCreateForm{}
-        app.render(w, http.StatusOK, "ansv.tmpl", data)
+	courses,err:=app.other.GetAllCourses()
+	if err!=nil{
+		app.serverError(w, err)
+		return
+	}
+	data.Courses=courses
+        data.Form = qpkCreateForm{}
+        app.render(w, http.StatusOK, "qpk.tmpl", data)
 }
 
 func (app *application) ansvCreatePost (w http.ResponseWriter, r *http.Request) {
@@ -343,7 +366,7 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
 /* ADMIN HANDLERS */
-func (app *application) viewAllFaculty(w http.ResponseWriter, r *http.Request) {
+func (app *application) facultyViewAll(w http.ResponseWriter, r *http.Request) {
 	faculties,err:=app.user.ViewAllFaculty()
 	if err!=nil{
 		app.serverError(w,err)
@@ -354,29 +377,3 @@ func (app *application) viewAllFaculty(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, http.StatusOK, "faculty.tmpl",data)
 }
-/*
-func (app *application) viewFaculty(w http.ResponseWriter, r *http.Request) {
-	params:=httprouter.ParamsFromContext(r.Context())
-
-        id, err := strconv.Atoi(params.ByName("id"))
-        if err != nil || id < 1 {
-                app.notFound(w)
-                return
-        }
-
-	faculty,err:=app.user.GetFaculty(id)
-        if err != nil {
-                if errors.Is(err, models.ErrNoRecord) {
-                        app.notFound(w)
-                } else {
-                        app.serverError(w, err)
-                }
-                return
-        }
-
-        data:=app.newTemplateData(r)
-        data.Faculty=faculty
-
-        app.render(w, http.StatusOK, "faculty.tmpl", data)
-}
-*/

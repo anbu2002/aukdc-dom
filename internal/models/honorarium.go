@@ -61,19 +61,6 @@ func (m *HonorariumModel) InsertValuedPaper(facultyID int,courseCode string, ans
 
 	return id, nil
 }
-func (m *HonorariumModel) Get(FacultyID int ,TransactionID string) (*Honorarium, error) {
-	s := &Honorarium{}
-
-        err:= m.DB.QueryRow(`SELECT * FROM honorarium WHERE (honorarium."TransactionID"=$1 AND "FacultyID"=$2)`,TransactionID,FacultyID).Scan(&s.TransactionID,&s.FacultyID,&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.TypeID, &s.CreatedTime)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrNoRecord
-		} else {
-			return nil, err
-		}
-	}
-	return s, nil
-}
 func (m *HonorariumModel) GetQPK(FacultyID int ,TransactionID string) (*QPK, error) {
 	s := &QPK{
 		Honorarium: Honorarium{
@@ -111,10 +98,41 @@ func (m *HonorariumModel) GetValuedPaper(FacultyID int, TransactionID string) (*
 	}
 	return s, nil
 }
-/* Method Stub */
+func (m *HonorariumModel) GetTransaction(FacultyID int ,TransactionID string) (*Honorarium, error) {
+	s := &Honorarium{}
+
+        err:= m.DB.QueryRow(`SELECT * FROM honorarium WHERE (honorarium."TransactionID"=$1 AND "FacultyID"=$2)`,TransactionID,FacultyID).Scan(&s.TransactionID,&s.FacultyID,&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.TypeID, &s.CreatedTime)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	return s, nil
+}
+func (m *HonorariumModel) GetTransactionAdmin(TransactionID string) (*Honorarium, error) {
+	s := &Honorarium{}
+
+        err:= m.DB.QueryRow(`SELECT * FROM honorarium WHERE (honorarium."TransactionID"=$1)`,TransactionID).Scan(&s.TransactionID,&s.FacultyID,&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.TypeID, &s.CreatedTime)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	return s, nil
+}
 func (m *HonorariumModel) ViewAll(FacultyID int) ([]*Honorarium, error) {
 	honoraria:= []*Honorarium{}
-        rows, err:= m.DB.Query(`SELECT * FROM honorarium WHERE ("FacultyID"=$1)`,FacultyID)
+	stmt:=`SELECT * FROM honorarium WHERE ("FacultyID"`
+	if FacultyID==0{
+		stmt+=`>$1)`
+	}else{
+		stmt+=`=$1)`
+	}
+	rows, err:= m.DB.Query(stmt,FacultyID)
 	if err != nil {
 		return nil, err
 	}
@@ -123,10 +141,10 @@ func (m *HonorariumModel) ViewAll(FacultyID int) ([]*Honorarium, error) {
 	for rows.Next(){
 		s:=&Honorarium{}
 		err=rows.Scan(&s.TransactionID,&s.FacultyID,&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.TypeID, &s.CreatedTime)
-	if err != nil {
-		return nil, err
-	}
-	honoraria=append(honoraria,s)
+		if err != nil {
+			return nil, err
+		}
+		honoraria=append(honoraria,s)
 	}
 	if err=rows.Err();err!=nil{
 		return nil, err

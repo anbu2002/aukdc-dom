@@ -82,6 +82,15 @@ func (m *UserModel) GetBankDetails(facultyID int) (*BankDetails, error){
 	return b, nil
 }
 
+func (m *UserModel) HasBankDetails(id int) (bool, error) {
+	var exists bool
+
+	stmt:=`SELECT EXISTS(SELECT true FROM account WHERE "FacultyID"=$1)`
+
+	err:=m.DB.QueryRow(stmt, id).Scan(&exists)
+
+	return exists, err
+}
 func (m *UserModel) Authenticate(facultyID int, password string) (int, error) {
 	var id int
 	var hashedPassword []byte
@@ -127,6 +136,8 @@ func (m *UserModel) Exists(id int) (bool, error) {
 
 	return exists, err
 }
+
+
 func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
         faculties:= []*Faculty{}
         rows, err:= m.DB.Query(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "RoleID"=2`)
@@ -150,10 +161,10 @@ func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
         return faculties, nil
 }
 
-func (m *UserModel) Get(eventid int) (*Faculty, error) {
+func (m *UserModel) GetFaculty(fid int) (*Faculty, error) {
         s := &Faculty{}
 
-        err:= m.DB.QueryRow(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign" FROM users FULL JOIN Faculty ON "ID"="FacultyID"`).Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.Department, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign)
+        err:= m.DB.QueryRow(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "ID"=$1`,fid).Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.Department, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign)
         if err != nil {
                 if errors.Is(err, sql.ErrNoRows) {
                         return nil, ErrNoRecord

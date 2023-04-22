@@ -4,7 +4,7 @@
 <div class="row">
 {{range .Faculties}}
 <div class="column">
-<button type="button" class="collapsible">{{.Name}}</button>
+<button type="button" class="collapsible"><a href="/faculty/view/{{.ID}}">{{.Name}}</a></button>
 <div class="content metadata">
 <div class='metadata'>
 <strong>{{.ID}}</strong>

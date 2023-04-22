@@ -53,16 +53,16 @@ func noSurf(next http.Handler) http.Handler {
 func (app *application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id:=app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
-                if id==0 {
-                        next.ServeHTTP(w, r)
-                        return
-                }
-                exists,err:=app.user.Exists(id)
-                if err!=nil {
+        	if id==0 {
+			next.ServeHTTP(w, r)
+               		return
+                 }
+                 exists,err:=app.user.Exists(id)
+                 if err!=nil {
                         app.serverError(w, err)
                         return
-                }
-               if exists {
+                 }
+                 if exists {
                         ctx:=context.WithValue(r.Context(), isAuthenticatedContextKey, true)
                         r=r.WithContext(ctx)
 			id=app.sessionManager.GetInt(r.Context(), "authorizedUserID")
@@ -80,11 +80,25 @@ func (app *application) authenticate(next http.Handler) http.Handler {
                         if authorized{
                                 ctx=context.WithValue(r.Context(), isAuthorizedContextKey, true)
                         	r=r.WithContext(ctx)
-                		next.ServeHTTP(w, r)
-				return
                         }
-                }
+                 }
+                 next.ServeHTTP(w, r)
         })
+}
+func (app *application) checkBankDetails(next http.Handler) http.Handler{
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id:=app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+		exists,err:=app.user.HasBankDetails(id)
+		if err!=nil {
+			app.serverError(w, err)
+			return
+		}
+		if exists{
+			ctx:=context.WithValue(r.Context(), hasBankDetailsContextKey, true)
+			r=r.WithContext(ctx)
+		}
+                next.ServeHTTP(w, r)
+	})
 }
 func (app *application) requireAuthentication(next http.Handler) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
@@ -123,4 +137,15 @@ func (app *application) requireAuthority(next http.Handler) http.Handler{
                 next.ServeHTTP(w, r)
         })
 }
-
+func (app *application) requireBankDetails(next http.Handler) http.Handler{
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		if !app.hasBankDetails(r){
+			fmt.Println("here")
+			app.sessionManager.Put(r.Context(), "flash", "Please add your bank details")
+			http.Redirect(w, r, "/faculty/bankdetails", http.StatusSeeOther)
+			return
+		} 
+                w.Header().Add("Cache-Control","no-store")
+                next.ServeHTTP(w, r)
+	})
+}

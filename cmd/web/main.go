@@ -23,6 +23,7 @@ type application struct{
 	infoLog *log.Logger
 	honorarium *models.HonorariumModel
 	user *models.UserModel
+	other *models.OtherModel
 	templateCache map[string]*template.Template
 	formDecoder *form.Decoder
 	sessionManager *scs.SessionManager
@@ -62,6 +63,7 @@ func main(){
 		infoLog:infoLog,
 		honorarium:&models.HonorariumModel{DB: db},
 		user:&models.UserModel{DB: db},
+		other:&models.OtherModel{DB: db},
 		templateCache: templateCache,
 		formDecoder:formDecoder,
 		sessionManager:sessionManager,
@@ -84,8 +86,8 @@ func main(){
 
 
 	infoLog.Printf("Starting server on %s",*addr)
-	//err= srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
-	err= srv.ListenAndServe()
+	err= srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+//	err= srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
 

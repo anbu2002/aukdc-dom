@@ -14,6 +14,8 @@ type templateData struct {
 	CurrentYear int
 	Honorarium *models.Honorarium
 	Honoraria []*models.Honorarium
+	Courses []*models.Course
+	Faculty *models.Faculty
 	Faculties []*models.Faculty
 	Form any
 	Flash string

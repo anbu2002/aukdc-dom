@@ -8,16 +8,11 @@
 {{with .Form.FieldErrors.bankname}}
 <label class='error'>{{.}}</label>
 {{end}}
-{{if .Form.BankName}}
-<select name="bankname" disabled>
-  <option>{{.Form.BankName}}</option>
-{{else}}
 <select name="bankname">
   <option disabled selected > Select an option </option>
   <option value="Canara Bank">Canara Bank</option>
   <option value="Indian Bank">Indian Bank</option>
   <option value="State Bank of India">State Bank of India</option>
-{{end}}
 </select>
 </div>
 
@@ -26,7 +21,7 @@
 {{with .Form.FieldErrors.accountno}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='accountno' {{with .Form.AccountNumber}} value={{.}} disabled{{end}}>
+<input type='text' name='accountno'>
 </div>
 
 <div>
@@ -34,7 +29,7 @@
 {{with .Form.FieldErrors.IFSC}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='IFSC' {{with .Form.IFSC}} value={{.}} disabled{{end}}>
+<input type='text' name='IFSC'>
 </div>
 
 <div>
@@ -46,9 +41,7 @@
 </div>
 
 <div> 
-{{if not .Form.AccountNumber}} 
 <input type='submit' value='Submit'>
-{{end}}
 </div>
 
 </form>

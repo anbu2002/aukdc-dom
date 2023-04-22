@@ -10,9 +10,9 @@
 {{end}}
 <select name="coursecode">
   <option disabled selected > Select an option </option>
-  <option value="Canara Bank">Canara Bank</option>
-  <option value="Indian Bank">Indian Bank</option>
-  <option value="State Bank of India">State Bank of India</option>
+{{range .Courses}}
+  <option value="{{.CourseCode}}">{{.CourseCode}}</option>
+{{end}}
 </select>
 </div>
 
