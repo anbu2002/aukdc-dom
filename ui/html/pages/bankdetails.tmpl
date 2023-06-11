@@ -1,6 +1,6 @@
 {{define "title"}}Bank Details{{end}}
 {{define "main"}}
-<form action='/faculty/bankdetails' method='POST' novalidate>
+<form action='/faculty/bankdetails' method='POST' enctype="multipart/form-data" novalidate>
 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
 
 <div>
@@ -37,7 +37,7 @@
 {{with .Form.FieldErrors.passbook}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='file' name='passbook' value='{{.Form.Passbook}}' disabled>
+<input type='file' name="passbook" value='{{.Form.Passbook}}' accept='image/*'>
 </div>
 
 <div> 

@@ -10,3 +10,4 @@ for (var i = 0; i < navLinks.length; i++) {
  $(document).ready(function() {
     $('input[type="number"]').val('');
   });
+

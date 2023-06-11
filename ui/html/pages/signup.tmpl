@@ -1,7 +1,7 @@
 {{define "title"}}Signup{{end}}
 {{define "main"}}
 
-<form action='/faculty/signup' method='POST' novalidate>
+<form action='/faculty/signup' method='POST' enctype="multipart/form-data" novalidate>
 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
 
 <div>
@@ -93,7 +93,7 @@
 {{with .Form.FieldErrors.panpic}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='file' name='panpic' value='{{.Form.PanPicture}}' disabled>
+<input type='file' name="panpic" value='{{.Form.PanPicture}}' accept='image/*'>
 </div>
 
 <div>
@@ -101,7 +101,7 @@
 {{with .Form.FieldErrors.esign}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='file' name='esign' value='{{.Form.Esign}}' disabled>
+<input type='file' name="esign" value='{{.Form.Esign}}' accept='image/*' >
 </div>
 
 <div>
