@@ -10,8 +10,6 @@ import (
 var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 var IFSCRX = regexp.MustCompile("^[A-Z]{4}0[0-9]{6}")
 var PanRX = regexp.MustCompile("^[A-Z]{5}[0-9]{4}[A-Z]")
-var PhRX = regexp.MustCompile("^[6-9][0-9]{9}")
-var ExtRX = regexp.MustCompile("^[2][0-9]{7}")
 
 type Validator struct{
 	NonFieldErrors []string

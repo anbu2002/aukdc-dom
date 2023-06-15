@@ -27,7 +27,7 @@ CREATE TABLE Faculty
     "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SG)')),
     "PanID" character varying(10) NOT NULL,
     "PanPicture" character varying NOT NULL,
-    "ExtensionNumber" bigint NOT NULL ("ExtensionNumber" BETWEEN 20000000 AND 99999999),
+    "ExtensionNumber" bigint NOT NULL CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999),
     "Esign" character varying NOT NULL,
      PRIMARY KEY ("FacultyID")
 );
