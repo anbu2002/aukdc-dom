@@ -25,15 +25,16 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodPost, "/faculty/signup", dynamic.ThenFunc(app.facultySignupPost))
 	router.Handler(http.MethodGet, "/user/login", dynamic.ThenFunc(app.userLogin))
 	router.Handler(http.MethodPost, "/user/login", dynamic.ThenFunc(app.userLoginPost))
-
 	
 	protected := dynamic.Append(app.requireAuthentication)
 
 	router.Handler(http.MethodGet, "/", protected.ThenFunc(app.home))
 	router.Handler(http.MethodGet, "/honorarium/view/", protected.ThenFunc(app.facultyView))
 	router.Handler(http.MethodPost, "/user/logout", protected.ThenFunc(app.userLogoutPost))
-	router.Handler(http.MethodGet, "/honorarium/view/:id", protected.ThenFunc(app.honorariumView))
+	router.Handler(http.MethodGet, "/honorarium/view/:tyid/:hid", protected.ThenFunc(app.honorariumView))
+	router.Handler(http.MethodGet, "/honorarium/view/:tyid/:hid/generate", protected.ThenFunc(app.generatePrint))
 	
+
 	faculty:=protected.Append(app.requireFaculty, app.checkBankDetails)
 	router.Handler(http.MethodGet, "/faculty/bankdetails", faculty.ThenFunc(app.addBankDetails))
 	router.Handler(http.MethodPost, "/faculty/bankdetails", faculty.ThenFunc(app.addBankDetailsPost))
@@ -47,7 +48,8 @@ func (app *application) routes() http.Handler {
 	authorized := protected.Append(app.requireAuthority)
 
 	router.Handler(http.MethodGet, "/faculty/view", authorized.ThenFunc(app.facultyViewAll))
-	router.Handler(http.MethodGet, "/faculty/view/:id", authorized.ThenFunc(app.facultyView))
+	router.Handler(http.MethodGet, "/faculty/view/:fid", authorized.ThenFunc(app.facultyView))
+	router.Handler(http.MethodGet, "/faculty/view/:fid/honorarium/:hid/print", authorized.ThenFunc(app.generatePrint))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	return standard.Then(router)

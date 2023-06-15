@@ -6,6 +6,12 @@ import (
 type OtherModel struct {
 	DB *sql.DB
 } 
+type Department struct {
+	Degree string
+	Branch string
+	DegreeType string
+	Department string
+}
 
 type Course struct {
 	Department
@@ -14,18 +20,15 @@ type Course struct {
 	Regulation string
 }
 
-type Department struct {
-	Degree string
-	Branch string
-	DegreeType string
-	Department string
-}
 
 
 func (m *OtherModel) GetCourse(coursecode string) (*Course, error) {
-	s := &Course{}
+	s := &Course{
+		Department: Department{
+		},
+	}
 
-        err:= m.DB.QueryRow(`SELECT * FROM Course WHERE (Course."CourseCode"=$1)`,coursecode).Scan(&s.CourseCode,&s.Title,&s.Regulation)
+        err:= m.DB.QueryRow(`SELECT "Degree","Branch","DegreeType","Department",Course."CourseCode","Title","Regulation" FROM Department FULL JOIN Course ON Course."CourseCode"=department."CourseCode" WHERE (Course."CourseCode"=$1);`,coursecode).Scan(&s.Degree,&s.Branch,&s.DegreeType,&s.Department.Department,&s.CourseCode,&s.Title,&s.Regulation)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord

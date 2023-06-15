@@ -145,7 +145,7 @@ func (app *application) facultyView(w http.ResponseWriter, r *http.Request) {
 		if params == nil {
 			id = 0
 		} else {
-			id, err = strconv.Atoi(params.ByName("id"))
+			id, err = strconv.Atoi(params.ByName("fid"))
 			if err != nil {
 				app.notFound(w)
 				return
@@ -171,32 +171,128 @@ func (app *application) facultyView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data.Honoraria = honoraria
-	app.render(w, http.StatusOK, "honorarium.tmpl", data)
+	app.render(w, http.StatusOK, "honoraria.tmpl", data)
 }
 func (app *application) honorariumView(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
-	var honorarium *models.Honorarium
-	var err error
-	tid := params.ByName("id")
+	data := app.newTemplateData(r)
+
+	hid := params.ByName("hid")
 	fid := app.sessionManager.Get(r.Context(), "authenticatedUserID").(int)
-	if app.isAuthorized(r) {
-		honorarium, err = app.honorarium.GetTransactionAdmin(tid)
-	} else {
-		honorarium, err = app.honorarium.GetTransaction(fid, tid)
-	}
-	if err != nil {
-		if errors.Is(err, models.ErrNoRecord) {
-			app.notFound(w)
-		} else {
+	var tyid int
+	var err error
+	if !app.isAuthorized(r){
+		tyid,err =strconv.Atoi(params.ByName("tyid"))
+		if err != nil {
 			app.serverError(w, err)
+			return
 		}
+	}else{
+		honorarium, err:= app.honorarium.GetTransactionAdmin(hid)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+		tyid=honorarium.TypeID
+		fid=honorarium.FacultyID
+	} 
+	if tyid==1{
+		qpk, err := app.honorarium.GetQPK(fid, hid)
+		if err != nil {
+			if errors.Is(err, models.ErrNoRecord) {
+				app.notFound(w)
+				return
+			} else {
+			app.serverError(w, err)
+			return
+			}
+		}
+		data.QPK=qpk
+		data.Honorarium=&qpk.Honorarium
+	}else{
+		vp, err := app.honorarium.GetValuedPaper(fid, hid)
+		if err != nil {
+			if errors.Is(err, models.ErrNoRecord) {
+				app.notFound(w)
+				return
+			} else {
+			app.serverError(w, err)
+			return
+			}
+		}
+		data.VP=vp
+		data.Honorarium=&vp.Honorarium
+	}
+
+
+	app.render(w, http.StatusOK, "honorarium.tmpl", data)
+}
+func (app *application) generatePrint(w http.ResponseWriter, r *http.Request){
+	data := app.newTemplateData(r)
+	fid:=app.sessionManager.Get(r.Context(), "authenticatedUserID").(int)
+	var err error
+	if app.isAuthorized(r){
+		params:= httprouter.ParamsFromContext(r.Context())
+		fid,err=strconv.Atoi(params.ByName("fid"))
+		if err!=nil{
+			app.serverError(w,err)
+			return
+		}
+	}
+
+	faculty,err :=app.user.GetFaculty(fid)
+	if err!=nil{
+		app.serverError(w,err)
 		return
 	}
+	data.Faculty=faculty
+	
+	var honorarium *models.Honorarium
+	params := httprouter.ParamsFromContext(r.Context())
+	hid := params.ByName("hid")
+	honorarium, err = app.honorarium.GetTransaction(fid, hid)
+	if err!=nil{
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+			return
+		} else {
+		app.serverError(w, err)
+		return
+		}
+	}
+	data.Honorarium=honorarium
 
-	data := app.newTemplateData(r)
-	data.Honorarium = honorarium
+	course,err:=app.other.GetCourse(honorarium.CourseCode)
+	if err!=nil{
+		app.serverError(w,err)
+		return
+	}
+	data.Course=course
 
-	app.render(w, http.StatusOK, "view.tmpl", data)
+	if honorarium.TypeID==1{
+		qpk,err :=app.honorarium.GetQPK(fid,hid)
+		if err!=nil{
+			app.serverError(w,err)
+			return
+		}
+		data.QPK=qpk
+	}else{
+		vp,err :=app.honorarium.GetValuedPaper(fid,hid)
+		if err!=nil{
+			app.serverError(w,err)
+			return
+		}
+		data.VP=vp
+	}
+
+	bDetails,err:=app.user.GetBankDetails(fid)
+	if err!=nil{
+		app.serverError(w,err)
+		return
+	}
+	data.BankDetails=bDetails
+
+	app.render(w, http.StatusOK, "print-"+strconv.Itoa(honorarium.TypeID)+".tmpl", data)
 }
 /* FACULTY HANDLERS */
 func (app *application) facultySignup(w http.ResponseWriter, r *http.Request) {
@@ -224,7 +320,7 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 	form.CheckField(validator.Matches(form.PanID, validator.PanRX), "panid", "This field must be a valid PAN ID")
 	form.CheckField(validator.NotBlank(strconv.Itoa(form.FacultyID)), "facultyid", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Department), "dept", "This field cannot be blank")
-	form.CheckField(validator.IntegerRange(form.Phone, 60000000000,9999999999), "phone", "This field must be a valid phone number")
+	form.CheckField(validator.IntegerRange(form.Phone, 6000000000,9999999999), "phone", "This field must be a valid phone number")
 	form.CheckField(validator.IntegerRange(form.Extension, 20000000,29999999), "extnumber", "This field must be a valid extension number")
 	form.CheckField(validator.NotBlank(form.Designation), "designation", "Please select an appropriate designation")
 	form.CheckField(validator.NotBlank(form.FacultyType), "facultytype", "Please select an appropriate type")
@@ -352,7 +448,7 @@ func (app *application) ansvCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	data.Courses = courses
 	data.Form = qpkCreateForm{}
-	app.render(w, http.StatusOK, "qpk.tmpl", data)
+	app.render(w, http.StatusOK, "ansv.tmpl", data)
 }
 
 func (app *application) ansvCreatePost(w http.ResponseWriter, r *http.Request) {

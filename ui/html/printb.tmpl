@@ -1,0 +1,69 @@
+{{define "printb"}}
+<!doctype html>
+<html lang="en">
+        <head>
+        <meta charset='utf-8'>
+        <link rel='stylesheet' href='/static/css/print.css' type="text/css">
+        </head>
+<body>
+ <header>
+       <table class="header center" style="text-align:center;">
+                <tr class="noBorder">
+                <th rowspan="2">
+                <img src='/static/img/ceg.jpg' width="100" height="100">
+                </th>
+                <th>
+                        OFFICE OF THE ADDITIONAL CONTROLLER OF EXAMINATIONS<br>(UNIVERSITY DEPARTMENTS)<br>ANNA UNIVERSITY::CHENNAI 25<br><br>
+                        Honorarium for Setting {{if eq .Honorarium.TypeID 1}} Question Paper/Key {{else}} Paper Valuation {{end}} including Typing Charges<br>
+                </th>
+                </tr>
+                <tr class="noBorder"><td>
+                        UG/PG(FT/PT) Examinations - ..............20.....
+                </td></tr>
+        </table>
+       <table class="center">
+                <tr>
+                        <td rowspan="2" width="100">Name:</td>
+                        <td rowspan="2" width="250">{{.Faculty.Name}}</td>
+                        <td width="170">SBI A/c No:</td>
+                        <td></td>
+                </tr>
+                <tr>
+                        <td>IFSC No:</td>
+                        <td></td>
+                </tr>
+
+                <tr>
+                        <td rowspan="2">Designation:</td>
+                        <td rowspan="2">{{.Faculty.Designation}}</td>
+                        <td>Canara A/c No:</td>
+                        <td></td>
+                </tr>
+                <tr>
+                        <td>IFSC No:</td>
+                        <td></td>
+                </tr>
+
+                <tr>
+                        <td rowspan="2">Department:</td>
+                        <td rowspan="2">{{.Faculty.Department}}</td>
+                        <td>Indian Bank A/c No:</td>
+                        <td></td>
+                </tr>
+                <tr>
+                        <td>IFSC No:</td>
+                        <td></td>
+                </tr>
+
+                <tr>
+                        <td>Branch:</td>
+                        <td>{{.Course.Branch}}</td>
+                        <td>PAN No:<br>(Mandatory)</td>
+                        <td>{{.Faculty.PanID}}</td>
+ </header>
+ <main>
+  {{template "main" .}}
+ </main>
+</body>
+</html>
+{{end}}

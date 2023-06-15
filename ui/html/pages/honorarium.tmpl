@@ -1,21 +1,26 @@
-{{define "title"}}Honorarium{{end}}
+{{define "title"}}Honorarium #{{.Honorarium.TransactionID}}{{end}}
 {{define "main"}}
-<table>
-{{if .Honoraria}}
-<tr>
-{{range .Honoraria}}
-<td>
-<button type="button" class="collapsible">{{.CourseCode}}</button>
-</td>
-<td>
-<strong><a href="/honorarium/view/{{.TransactionID}}">{{.TransactionID}}</a></strong>
-</td>
-<td><code>{{.InitialAmount}}</code></td>
-<td><code>{{.FinalAmount}}</code></td>
-<td>Created Time: {{humanDate .CreatedTime}}</td>
-{{end}}
-</tr>
-{{else}}
-<h2>Please create a new honorarium</h2>
-{{end}}
+        {{with .QPK}}
+        <div class='event'>
+        <div class='metadata'>
+        </div>
+	<p>Question Paper Count: {{.QuestionPaperCount}}</p>
+	<p>Question Paper Rate: {{.QuestionPaperRate}}</p>
+	<p>Key Count: {{.KeyCount}}</p>
+	<p>Key Rate: {{.KeyRate}}</p>
+	{{else}}
+	{{with .VP}}
+	
+	<p>Answer Script Count: {{.AnswerScriptCount}}</p>
+	<p>Answer Script Rate: {{.AnswerScriptRate}}</p>
+	{{end}}{{end}}
+	{{with .Honorarium}}
+        <strong>{{.CourseCode}}</strong>
+        <pre><code>{{.InitialAmount}}</code></pre>
+        <pre><code>{{.FinalAmount}}</code></pre>
+        <div class='metadata'>
+        <p>Created: {{humanDate .CreatedTime}}</p>
+        </div>
+        </div>
+        {{end}}
 {{end}}

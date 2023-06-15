@@ -39,7 +39,12 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 		app.serverError(w, err)
 	}
 	buf := new(bytes.Buffer)
-	err := ts.ExecuteTemplate(buf, "base", data)
+	var err error
+	if strings.Contains(page,"print"){
+		err=ts.ExecuteTemplate(buf,"printb",data)
+	}else {
+		err= ts.ExecuteTemplate(buf, "base", data)
+	}
 	if err != nil {
 		app.serverError(w, err)
 		return
