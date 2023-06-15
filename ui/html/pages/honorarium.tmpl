@@ -1,22 +1,20 @@
 {{define "title"}}Honorarium{{end}}
 {{define "main"}}
+<table>
 {{if .Honoraria}}
-<div class="row">
+<tr>
 {{range .Honoraria}}
-<div class="column">
+<td>
 <button type="button" class="collapsible">{{.CourseCode}}</button>
-<div class="content metadata">
-<div class='metadata'>
+</td>
+<td>
 <strong><a href="/honorarium/view/{{.TransactionID}}">{{.TransactionID}}</a></strong>
-</div>
-<pre><code>{{.InitialAmount}}</code></pre>
-<pre><code>{{.FinalAmount}}</code></pre>
-<div class='metadata'>
-<p>Created Time: {{humanDate .CreatedTime}}</p>
-</div>
-</div>
-</div>
+</td>
+<td><code>{{.InitialAmount}}</code></td>
+<td><code>{{.FinalAmount}}</code></td>
+<td>Created Time: {{humanDate .CreatedTime}}</td>
 {{end}}
+</tr>
 {{else}}
 <h2>Please create a new honorarium</h2>
 {{end}}

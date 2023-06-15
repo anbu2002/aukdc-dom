@@ -219,19 +219,17 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 		return
 	}
 	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
-	form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
-	form.CheckField(validator.NotBlank(form.PanID), "panid", "This field cannot be blank")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
+//must be in format AAAPZ1234C
+	form.CheckField(validator.Matches(form.PanID, validator.PanRX), "panid", "This field must be a valid PAN ID")
 	form.CheckField(validator.NotBlank(strconv.Itoa(form.FacultyID)), "facultyid", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Department), "dept", "This field cannot be blank")
-	form.CheckField(validator.IntegerRange(form.Phone, 6000000000, 9999999999), "phone", "This field must be a valid phone number")
-	form.CheckField(validator.IntegerRange(form.Extension, 6000000000, 9999999999), "extnumber", "This field must be a valid extension number")
-	form.CheckField(validator.NotBlank(form.Designation), "designation", "This field cannot be blank")
-	form.CheckField(validator.NotBlank(form.FacultyType), "facultytype", "This field cannot be blank")
-	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
+//	form.CheckField(validator.Matches(form.Phone, validator.PhRX), "phone", "This field must be a valid phone number")
+//	form.CheckField(validator.Matches(form.Extension, validator.ExtRX), "extnumber", "This field must be a valid extension number")
+	form.CheckField(validator.NotBlank(form.Designation), "designation", "Please select an appropriate designation")
+	form.CheckField(validator.NotBlank(form.FacultyType), "facultytype", "Please select an appropriate type")
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
 	form.CheckField(validator.MinChars(form.Password, 8), "password", "This field must be at least 8 characters long")
-	fmt.Println("handler", form.PanPicture)
-	fmt.Println("handler", form.Esign)
 
 	if !form.Valid() {
 		data := app.newTemplateData(r)
@@ -240,8 +238,17 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	PanPicture := app.uploadImage(w, r,"panpic")
-	Esign := app.uploadImage(w, r,"esign")
+	PanPicture,err := app.uploadImage(w, r,"panpic",form.FacultyID)
+	if err != nil {
+		fmt.Println("handler", form.PanPicture)
+		app.serverError(w, err)
+		return
+	}
+	Esign,err := app.uploadImage(w, r,"esign",form.FacultyID)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
 	err = app.user.Insert(form.FacultyID, form.Name, form.Phone, form.Email, form.FacultyType, form.Department, form.Designation, form.Password, form.PanID, PanPicture, form.Extension, Esign)
 	if err != nil {
@@ -273,7 +280,8 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 	}
 	form.CheckField(validator.NotBlank(form.BankName), "bank", "This field must not be blank")
 	form.CheckField(validator.NotBlank(strconv.Itoa(form.AccountNumber)), "accountno", "This field must be a valid account number")
-	form.CheckField(validator.MinChars(form.IFSC, 11), "IFSC", "IFSC code must be exactly 11 characters")
+//must be in format ABCD0678901
+	form.CheckField(validator.Matches(form.IFSC, validator.IFSCRX), "IFSC", "This field must be a valid IFSC code")
 	fmt.Println("handler", form.Passbook)
 
 	if !form.Valid() {
@@ -283,7 +291,11 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	Passbook := app.uploadImage(w, r,"passbook")
+	Passbook,err := app.uploadImage(w, r,"passbook", id)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
 	err = app.user.InsertBankDetails(id, form.BankName, form.AccountNumber, form.IFSC, Passbook)
 	if err != nil {

@@ -24,11 +24,11 @@ CREATE TABLE Faculty
     "FacultyID" int NOT NULL REFERENCES Users("ID") ON DELETE CASCADE,
     "FacultyType" character varying NOT NULL CHECK ("FacultyType" in ('Permanent','Contract/Guest','Visiting')),
     "Department" character varying NOT NULL,
-    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor','Assistant Professor', 'Associate Professor','Teaching Fellow')),
+    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SG)')),
     "PanID" character varying(10) NOT NULL,
-    "PanPicture" bytea NOT NULL,
-    "ExtensionNumber" bigint NOT NULL,
-    "Esign" bytea NOT NULL,
+    "PanPicture" character varying NOT NULL,
+    "ExtensionNumber" bigint NOT NULL ("ExtensionNumber" BETWEEN 20000000 AND 99999999),
+    "Esign" character varying NOT NULL,
      PRIMARY KEY ("FacultyID")
 );
 
@@ -38,7 +38,7 @@ CREATE TABLE Account
     "FacultyID" int NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
     "AccountNumber" bigint NOT NULL,
     "IFSCCode" character varying NOT NULL,
-    "Passbook" bytea NOT NULL,
+    "Passbook" character varying NOT NULL,
      PRIMARY KEY ("FacultyID")
 );
 

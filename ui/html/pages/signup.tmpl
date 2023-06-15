@@ -9,7 +9,7 @@
 {{with .Form.FieldErrors.facultyid}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='number' name='facultyid' value='' required>
+<input type='number' name='facultyid' placeholder='' required>
 </div>
 
 <div>
@@ -26,7 +26,7 @@
 {{with .Form.FieldErrors.phone}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='tel' name='phone' value='{{.Form.Phone}}' required>
+<input type='tel' name='phone' placeholder='' value='{{.Form.Phone}}' required>
 </div>
 
 <div>
@@ -34,7 +34,7 @@
 {{with .Form.FieldErrors.email}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='text' name='email' value='{{.Form.Email}}' required>
+<input type='email' name='email' value='{{.Form.Email}}' required>
 </div>
 
 <div>
@@ -42,7 +42,7 @@
 {{with .Form.FieldErrors.extnumber}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='tel' name='extnumber' value='{{.Form.Extension}}' required>
+<input type='tel' name='extnumber' placeholder='' value='{{.Form.Extension}}' required>
 </div>
 
 <div>
@@ -59,7 +59,7 @@
 <label class='error'>{{.}}</label>
 {{end}}
 <select name="facultytype">
-  <option disabled selected value> Select an option </option>
+  <option disabled selected> Select an option </option>
   <option value="Permanent">Permanent</option>
   <option value="Visiting">Visiting</option>
   <option value="Contract/Guest">Contract/Guest</option>
@@ -72,10 +72,12 @@
 <label class='error'>{{.}}</label>
 {{end}}
 <select name="designation">
-  <option disabled selected value value=''> Select an option </option>
+  <option disabled selected> Select an option </option>
   <option value="Professor">Professor</option>
   <option value="Assistant Professor">Assistant Professor</option>
-  <option value="Associate Professor">Associate Professor</option>
+  <option value="Assistant Professor (SG)">Associate Professor</option>
+  <option value="Associate Professor">Assistant Professor (SG)</option>
+  <option value="Emeritus Professor">Emeritus Professor</option>
   <option value="Teaching Fellow">Teaching Fellow</option>
 </select>
 </div>

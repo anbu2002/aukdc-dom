@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"strconv"
 
 	"github.com/go-playground/form/v4"
 	"github.com/justinas/nosurf"
@@ -104,36 +105,34 @@ func (app *application) hasBankDetails(r *http.Request) bool {
 	return hasBankDetails
 }
 
-func (app *application) uploadImage(w http.ResponseWriter, r *http.Request, picID string) string {
+func (app *application) uploadImage(w http.ResponseWriter, r *http.Request, picID string, id int) (string, error) {
 	var form facultySignupForm
 	err := app.decodePostForm(r, &form)
 	r.ParseMultipartForm(32 << 20)
 	picture, handler, err := r.FormFile(picID)
 	if err != nil {
-		fmt.Println(err)
+		return "", err
 	}
 
 	defer picture.Close()
 	if err != nil {
-		fmt.Println(err)
+		return "", err
 	}
 
-	
-	facID := app.sessionManager.Get(r.Context(), "authenticatedUserID").(string)
+	facID:=strconv.Itoa(id)
 	splitsName := strings.Split(handler.Filename, ".")
 	var lenfilename = len(splitsName)
 
 	image:= facID+"_"+picID+"."+splitsName[lenfilename-1]
 
-	file, err := os.OpenFile("uploads/"+picID+"/"+image, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile("uploads/"+picID+"/"+image, os.O_WRONLY|os.O_CREATE, 0700)
 
 	defer file.Close()
 	if err != nil {
-		fmt.Println(err)
-		return ("Error in copying "+image)
+		return "", err
 	}
 	io.Copy(file, picture)
 
-	return image
+	return image, nil
 }
 
