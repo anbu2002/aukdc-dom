@@ -1,30 +1,27 @@
 {{define "title"}}Faculty List{{end}}
 {{define "main"}}
+<table>
+<tr>
+    <th>ID</th>
+    <th>Name</th> 
+    <th>Designation</th> 
+    <th>Department</th> 
+    <th>Phone No</th>
+    <th>Extension No</th> 
+</tr>
 {{if .Faculties}}
 <div class="row">
 {{range .Faculties}}
-<div class="column">
-<button type="button" class="collapsible"><a href="/faculty/view/{{.ID}}">{{.Name}}</a></button>
-<div class="content metadata">
-<div class='metadata'>
-<strong>{{.ID}}</strong>
+<tr>
+    <td><button type="button" class="collapsible"><a href="/faculty/view/{{.ID}}">{{.ID}}</a></button></td>
+    <td>{{.Name}}</td>
+    <td>{{.Designation}}</td>
+    <td>{{.Department}}</td>
+    <td>{{.Phone}}</td>
+    <td>{{.Extension}}</td>
+</tr>
+{{end}}
 </div>
-<pre>
-<table>
-<tr><td>Name</td><td>:</td><td>{{.Name}}</td></tr>
-<tr><td>Phone</td><td>:</td><td>{{.Phone}}</td></tr>
-<tr><td>Email</td><td>:</td><td>{{.Email}}</td></tr>
-<tr><td>Faculty Type</td><td>:</td><td>{{.FacultyType}}</td></tr>
-<tr><td>Department</td><td>:</td><td>{{.Department}}</td></tr>
-<tr><td>Designation</td><td>:</td><td>{{.Designation}}</td></tr>
-<tr><td>PanID</td><td>:</td><td>{{.PanID}}</td></tr>
-<tr><td>PanPicture</td><td>:</td><td>{{.PanPicture}}</td></tr>
-<tr><td>Extension Number</td><td>:</td><td>{{.Extension}}</td></tr>
-<tr><td>Esign</td><td>:</td><td>{{.Esign}}</td></tr>
+{{end}}
 </table>
-</pre>
-</div>
-</div>
-{{end}}
-{{end}}
 {{end}}
