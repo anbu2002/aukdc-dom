@@ -51,12 +51,21 @@ func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email,
 
 	stmt := `With new_user as (INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") VALUES($1,$2,$3,$4,$5,2) RETURNING users."ID") INSERT INTO faculty ("FacultyID","FacultyType", "Department", "Designation", "PanID", "PanPicture", "ExtensionNumber", "Esign", "TDS") VALUES((SELECT "ID" FROM new_User), $6, $7, $8, $9, $10, $11, $12,$13);`
 	_,err=m.DB.Exec(stmt, facultyID, name, phoneNumber, email, string(hashedPassword),facultyType, department, designation, panID, panPicture, extensionNumber, eSign,tdsper)
-//Add code for ID
 	if err!=nil{
 		var pSQLError *pq.Error
 		if errors.As(err, &pSQLError){
-			if pSQLError.Code == "23505" && strings.Contains(pSQLError.Message, "users_uc_email"){
-			return ErrDuplicateEmail
+			if pSQLError.Code == "23505"{
+				if strings.Contains(pSQLError.Message, "users_Email_key"){
+					return ErrDuplicateEmail
+				}else if strings.Contains(pSQLError.Message, "users_pkey"){
+					return ErrDuplicateID
+				}else if strings.Contains(pSQLError.Message, "users_PhoneNumber_key"){
+					return ErrDuplicatePhone
+				}else if strings.Contains(pSQLError.Message, "faculty_ExtenstionNumber_key"){
+					return ErrDuplicateExtn
+				}else if strings.Contains(pSQLError.Message, "faculty_PanID_key"){
+					return ErrDuplicatePan
+				}
 			}
 		}
 		return err
@@ -67,7 +76,13 @@ func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email,
 func (m *UserModel) InsertBankDetails(facultyID int, bankName string, accountNumber int, IFSC, passbook string) error{
 	_,err:=m.DB.Exec(`INSERT INTO account("BankName","FacultyID","AccountNumber","IFSCCode","Passbook") VALUES ($1,$2,$3,$4,$5)`,bankName,facultyID,accountNumber,IFSC,passbook)
 	if err!=nil{
+		var pSQLError *pq.Error
+		if errors.As(err, &pSQLError){
+			if pSQLError.Code == "23505" && strings.Contains(pSQLError.Message, "account__pkey"){
+				return ErrDuplicateAccNo
+			}
 		return err
+		}
 	}
 	return nil
 	

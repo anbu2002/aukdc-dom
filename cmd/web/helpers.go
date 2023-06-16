@@ -130,7 +130,7 @@ func (app *application) uploadImage(w http.ResponseWriter, r *http.Request, picI
 
 	image:= facID+"_"+picID+"."+splitsName[lenfilename-1]
 
-	file, err := os.OpenFile("uploads/"+picID+"/"+image, os.O_WRONLY|os.O_CREATE, 0700)
+	file, err := os.OpenFile("uploads/"+picID+"/"+image, os.O_WRONLY|os.O_EXCL|os.O_CREATE, 0700)
 
 	defer file.Close()
 	if err != nil {

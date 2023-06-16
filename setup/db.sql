@@ -7,8 +7,8 @@ CREATE TABLE Users
 (
     "ID" int NOT NULL,
     "Name" character varying NOT NULL,
-    "PhoneNumber" bigint NOT NULL CHECK ("PhoneNumber" BETWEEN 6000000000 AND 9999999999),
-    "Email" character varying NOT NULL,
+    "PhoneNumber" bigint NOT NULL UNIQUE CHECK ("PhoneNumber" BETWEEN 6000000000 AND 9999999999),
+    "Email" character varying NOT NULL UNIQUE,
     "HashedPassword" character varying NOT NULL,
     "RoleID" int NOT NULL,
      PRIMARY KEY ("ID")
@@ -25,9 +25,9 @@ CREATE TABLE Faculty
     "FacultyType" character varying NOT NULL CHECK ("FacultyType" in ('Permanent','Contract/Guest','Visiting')),
     "Department" character varying NOT NULL,
     "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SG)')),
-    "PanID" character varying(10) NOT NULL,
+    "PanID" character varying(10) NOT NULL UNIQUE,
     "PanPicture" character varying NOT NULL,
-    "ExtensionNumber" bigint NOT NULL CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999),
+    "ExtensionNumber" bigint NOT NULL CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999) UNIQUE,
     "Esign" character varying NOT NULL,
     "TDS" real NOT NULL,
      PRIMARY KEY ("FacultyID")

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"io/fs"
 	"time"
 
 	"aukdc.dom.com/internal/models"
@@ -336,7 +337,13 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 
 	PanPicture,err := app.uploadImage(w, r,"panpic",form.FacultyID)
 	if err != nil {
-		fmt.Println("handler", form.PanPicture)
+		if errors.Is(err, fs.ErrExist){
+			form.AddFieldError("facultyid", "FacultyID is already in use")
+			data:= app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			return
+		}
 		app.serverError(w, err)
 		return
 	}
@@ -348,7 +355,26 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 
 	err = app.user.Insert(form.FacultyID, form.Name, form.Phone, form.Email, form.FacultyType, form.Department, form.Designation, form.Password, form.PanID, PanPicture, form.Extension, Esign)
 	if err != nil {
-//add error for duplicate id
+		var flag bool
+		if errors.Is(err, models.ErrDuplicateEmail) {
+			form.AddFieldError("email", "Email address is already in use")
+			flag=true
+		}else if errors.Is(err, models.ErrDuplicatePhone){
+			form.AddFieldError("phone", "Phone Number is already in use")
+			flag=true
+		}else if errors.Is(err, models.ErrDuplicateExtn){
+			form.AddFieldError("extnumber", "Extension Number is already in use")
+			flag=true
+		}else if errors.Is(err, models.ErrDuplicatePan){
+			form.AddFieldError("panid", "PAN ID is already in use")
+			flag=true
+		}
+		if flag{
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			return
+		}
 		app.serverError(w, err)
 		return
 	}
