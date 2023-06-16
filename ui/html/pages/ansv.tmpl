@@ -1,0 +1,33 @@
+{{define "title"}}Create AnsV{{end}}
+{{define "main"}}
+<form action='/honorarium/ansv/create' method='POST'>
+<input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+
+<div>
+<label>Course Code:</label>
+{{with .Form.FieldErrors.coursecode}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="coursecode">
+  <option disabled selected > Select an option </option>
+{{range .Courses}}
+  <option value="{{.CourseCode}}">{{.CourseCode}}</option>
+{{end}}
+</select>
+</div>
+
+<div>
+<label>AnswerScript Count:</label>
+{{with .Form.FieldErrors.asc}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='ac'>
+</div>
+
+
+<div>
+<input type='submit' value='Submit'>
+</div>
+
+</form>
+{{end}}

@@ -6,3 +6,8 @@ for (var i = 0; i < navLinks.length; i++) {
 		break;
 	}
 }
+
+ $(document).ready(function() {
+    $('input[type="number"]').val('');
+  });
+

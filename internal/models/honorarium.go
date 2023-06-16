@@ -3,14 +3,17 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+        "github.com/google/uuid"
 )
 
 type Honorarium struct {
-	TransactionID int
-	FacultyID string
+	TransactionID string
+	FacultyID int
 	CourseCode string
-	InitialAmount int
-	FinalAmount int
+	InitialAmount float32
+	FinalAmount float32
+	TypeID int
 	CreatedTime time.Time
 }
 type QPK struct {
@@ -29,30 +32,50 @@ type HonorariumModel struct {
 	DB *sql.DB
 } 
 
-func (m *HonorariumModel) InsertQPK(transactionID int, facultyID,courseCode string, initialAmount,finalAmount,questionPaperCount,keyCount int,questionPaperRate,keyRate float32) (int, error) {
-	var id int
-	err:= m.DB.QueryRow(`With new_qpk as(INSERT INTO Honorarium("TransactionID", "FacultyID", "CourseCode", "InitialAmount", "FinalAmount", "TypeID", "CreatedTime") VALUES ($1, $2, $3, $4, $5, 1 ,NOW()::timestamp(0)) RETURNING Honorarium."TransactionID") INSERT INTO "Question Paper/Key"("TransactionID","TypeID","QuestionPaperCount","KeyCount", "KeyRate", "QuestionPaperRate") VALUES((SELECT "TransactionID" FROM new_qpk), 1,$6,$7,$8,$9) returning 'TransactionID';`, transactionID, facultyID, courseCode, initialAmount,finalAmount, questionPaperCount, keyCount, questionPaperRate, keyRate).Scan(&id)
+func (m *HonorariumModel) InsertQPK(facultyID int,courseCode string, questionPaperCount,keyCount int, tds float32) (string, error) {
+	var initialAmount, finalAmount,questionPaperRate,keyRate float32
+	questionPaperRate,keyRate=2000.0,3000.0
+	initialAmount=questionPaperRate*float32(questionPaperCount)+keyRate*float32(keyCount)
+	finalAmount=initialAmount-initialAmount*tds
+
+	tid:=uuid.New()
+	var id string
+	err:= m.DB.QueryRow(`With new_qpk as(INSERT INTO honorarium("TransactionID", "FacultyID", "CourseCode", "InitialAmount", "FinalAmount", "TypeID", "CreatedTime") VALUES ($1, $2, $3, $4, $5, 1 ,NOW()::timestamp(0)) RETURNING honorarium."TransactionID") INSERT INTO "Question Paper/Key"("TransactionID","TypeID","QuestionPaperCount","KeyCount", "KeyRate", "QuestionPaperRate") VALUES((SELECT "TransactionID" FROM new_qpk), 1,$6,$7,$8,$9) returning "TransactionID";`, tid, facultyID, courseCode, initialAmount,finalAmount, questionPaperCount, keyCount,keyRate, questionPaperRate).Scan(&id)
 	if err!=nil{
-		return  0,err
+		return  "", err
 	}
 
 	return id, nil
 }
 
-func (m *HonorariumModel) InsertValuedPaper(transactionID int, facultyID,courseCode string, initialAmount,finalAmount, answerScriptCount int,answerScriptRate float32) (int, error) {
-	var id int
-	err:= m.DB.QueryRow(`With new_ap as(INSERT INTO Honorarium("TransactionID", "FacultyID", "CourseCode", "InitialAmount", "FinalAmount", "TypeID", "CreatedTime") VALUES ($1, $2, $3, $4, $5, 1 ,NOW()::timestamp(0)) RETURNING Honorarium."TransactionID") INSERT INTO "Paper Valuation"("TransactionID","TypeID","AnswerScriptCount","AnswerScriptRate") VALUES((SELECT "TransactionID" FROM new_qpk), 2 ,$6,$7) returning 'TransactionID';`, transactionID, facultyID, courseCode, initialAmount,finalAmount, answerScriptCount, answerScriptRate).Scan(&id)
+func (m *HonorariumModel) InsertValuedPaper(facultyID int,courseCode string, answerScriptCount int, tds float32) (string, error) {
+//ask criteria for change
+	var answerScriptRate float32
+	answerScriptRate=20.0
+	initialAmount:=answerScriptRate*float32(answerScriptCount)
+	finalAmount:=initialAmount-initialAmount*tds
+	if(finalAmount<100){
+		finalAmount=100
+	}
+	tid:=uuid.New()
+	var id string
+	err:= m.DB.QueryRow(`With new_ap as(INSERT INTO honorarium("TransactionID", "FacultyID", "CourseCode", "InitialAmount", "FinalAmount", "TypeID", "CreatedTime") VALUES ($1, $2, $3, $4, $5, 2 ,NOW()::timestamp(0)) RETURNING honorarium."TransactionID") INSERT INTO "Paper Valuation"("TransactionID","TypeID","AnswerScriptCount","AnswerScriptRate") VALUES((SELECT "TransactionID" FROM new_ap), 2 ,$6,$7) returning "TransactionID";`, tid, facultyID, courseCode, initialAmount,finalAmount, answerScriptCount, answerScriptRate).Scan(&id)
 	if err!=nil{
-		return  0,err
+		return  "", err
 	}
 
 	return id, nil
 }
-/* Method Stub */
-func (m *HonorariumModel) GetQPK(TransactionID int) (*QPK, error) {
-	s := &QPK{}
+func (m *HonorariumModel) GetQPK(FacultyID int ,TransactionID string) (*QPK, error) {
+	s := &QPK{
+		Honorarium: Honorarium{
+			TransactionID: TransactionID,
+			FacultyID: FacultyID,
+			TypeID: 1,
+		},
+	}
 
-	err:= m.DB.QueryRow(" ", TransactionID).Scan()
+        err:= m.DB.QueryRow(`SELECT "CourseCode","InitialAmount","FinalAmount","QuestionPaperCount","KeyCount","KeyRate","QuestionPaperRate", "CreatedTime" FROM honorarium FULL JOIN "Question Paper/Key" ON honorarium."TransactionID"="Question Paper/Key"."TransactionID" WHERE (honorarium."TransactionID"=$1 AND "FacultyID"=$2)`,TransactionID, FacultyID).Scan(&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.QuestionPaperCount, &s.KeyCount, &s.KeyRate, &s.QuestionPaperRate, &s.CreatedTime)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
@@ -63,11 +86,16 @@ func (m *HonorariumModel) GetQPK(TransactionID int) (*QPK, error) {
 	return s, nil
 }
 
-/* Method Stub */
-func (m *HonorariumModel) GetValuedPaper(TransactionID int) (*ValuedPaper, error) {
-	s := &ValuedPaper{}
+func (m *HonorariumModel) GetValuedPaper(FacultyID int, TransactionID string) (*ValuedPaper, error) {
+	s := &ValuedPaper{
+		Honorarium: Honorarium{
+			TransactionID: TransactionID,
+			FacultyID: FacultyID,
+			TypeID: 2,
+		},
+	}
 
-	err:= m.DB.QueryRow(" ", TransactionID).Scan()
+        err:= m.DB.QueryRow(`SELECT "CourseCode","InitialAmount","FinalAmount","AnswerScriptRate","AnswerScriptCount", "CreatedTime" FROM honorarium FULL JOIN "Paper Valuation" ON honorarium."TransactionID"="Paper Valuation"."TransactionID" WHERE (honorarium."TransactionID"=$1 AND "FacultyID"=$2)`,TransactionID, FacultyID).Scan(&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.AnswerScriptRate, &s.AnswerScriptCount, &s.CreatedTime)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
@@ -77,11 +105,41 @@ func (m *HonorariumModel) GetValuedPaper(TransactionID int) (*ValuedPaper, error
 	}
 	return s, nil
 }
+func (m *HonorariumModel) GetTransaction(FacultyID int ,TransactionID string) (*Honorarium, error) {
+	s := &Honorarium{}
 
-/* Method Stub */
-func (m *HonorariumModel) Latest() ([]*Honorarium, error) {
+        err:= m.DB.QueryRow(`SELECT * FROM honorarium WHERE (honorarium."TransactionID"=$1 AND "FacultyID"=$2)`,TransactionID,FacultyID).Scan(&s.TransactionID,&s.FacultyID,&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.TypeID, &s.CreatedTime)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	return s, nil
+}
+func (m *HonorariumModel) GetTransactionAdmin(TransactionID string) (*Honorarium, error) {
+	s := &Honorarium{}
+
+        err:= m.DB.QueryRow(`SELECT * FROM honorarium WHERE (honorarium."TransactionID"=$1)`,TransactionID).Scan(&s.TransactionID,&s.FacultyID,&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.TypeID, &s.CreatedTime)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	return s, nil
+}
+func (m *HonorariumModel) ViewAll(FacultyID int) ([]*Honorarium, error) {
 	honoraria:= []*Honorarium{}
-	rows, err:= m.DB.Query("")
+	stmt:=`SELECT * FROM honorarium WHERE ("FacultyID"`
+	if FacultyID==0{
+		stmt+=`>$1)`
+	}else{
+		stmt+=`=$1)`
+	}
+	rows, err:= m.DB.Query(stmt,FacultyID)
 	if err != nil {
 		return nil, err
 	}
@@ -89,11 +147,11 @@ func (m *HonorariumModel) Latest() ([]*Honorarium, error) {
 
 	for rows.Next(){
 		s:=&Honorarium{}
-		err=rows.Scan()
-	if err != nil {
-		return nil, err
-	}
-	honoraria=append(honoraria,s)
+		err=rows.Scan(&s.TransactionID,&s.FacultyID,&s.CourseCode, &s.InitialAmount, &s.FinalAmount, &s.TypeID, &s.CreatedTime)
+		if err != nil {
+			return nil, err
+		}
+		honoraria=append(honoraria,s)
 	}
 	if err=rows.Err();err!=nil{
 		return nil, err

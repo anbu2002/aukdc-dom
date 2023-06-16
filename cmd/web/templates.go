@@ -13,10 +13,18 @@ import (
 type templateData struct {
 	CurrentYear int
 	Honorarium *models.Honorarium
-	Honorariums []*models.Honorarium
+	Honoraria []*models.Honorarium
+	QPK *models.QPK
+	VP *models.ValuedPaper
+	Course *models.Course
+	Courses []*models.Course
+	Faculty *models.Faculty
+	Faculties []*models.Faculty
+	BankDetails *models.BankDetails
 	Form any
 	Flash string
 	IsAuthenticated bool
+	IsAuthorized bool
 	CSRFToken string
 }
 
@@ -25,10 +33,14 @@ func humanDate(t time.Time)string{
 		return ""
 	}
 
-	return t.UTC().Format("02 Jan 2006 at 15:04")
+	return t.UTC().Format("15:05 02/Jan/2006")
+}
+func multiplyFloat(x float32, y float32)float32{
+	return x*y
 }
 var functions=template.FuncMap{
 	"humanDate": humanDate,
+	"multiplyFloat": multiplyFloat,
 }
 
 func newTemplateCache()  (map[string]*template.Template, error){
@@ -43,6 +55,7 @@ func newTemplateCache()  (map[string]*template.Template, error){
 		
 		patterns:=[]string{
 			"html/base.tmpl",
+			"html/printb.tmpl",
 			"html/partials/*.tmpl",
 			page,
 		}
@@ -55,4 +68,6 @@ func newTemplateCache()  (map[string]*template.Template, error){
 	}
 	return cache, nil
 }
+
+
 

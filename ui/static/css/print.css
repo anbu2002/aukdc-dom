@@ -1,0 +1,32 @@
+@page { size: A4;  margin: 1mm; }
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 0.5mm 1.25mm 1.25mm;
+  table-layout: auto;
+}
+.center{
+  margin-left: auto;
+  margin-right: auto;
+  width: 200mm;
+}
+table.header td, table.details td{
+	text-align:center;
+}
+tr.noBorder td,tr.noBorder th, td.noBorder{
+	border: 0;
+}
+p{
+	padding-right:4mm;
+	line-height: 8mm;
+}
+.left{
+	float:left;
+}
+.right{
+	float:right;
+}
+.textalign{
+	text-align:center;
+	text-decoration: underline;
+}

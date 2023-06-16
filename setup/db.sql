@@ -1,31 +1,46 @@
-CREATE Database aukdcdom;
+CREATE DATABASE aukdcdom;
+
 \c aukdcdom;
 
-CREATE TABLE Faculty
+
+CREATE TABLE Users
 (
-    "FacultyID" character varying NOT NULL,
+    "ID" int NOT NULL,
     "Name" character varying NOT NULL,
     "PhoneNumber" bigint NOT NULL CHECK ("PhoneNumber" BETWEEN 6000000000 AND 9999999999),
     "Email" character varying NOT NULL,
-    "FacultyType" character varying NOT NULL CHECK ("FacultyType" in ('Permanent','Visiting Faulty')),
-    "Department" character varying NOT NULL,
-    "Designation" character varying NOT NULL,
-    "Password" character varying NOT NULL,
-    "PanID" character varying(10) NOT NULL,
-    "PanPicture" bytea NOT NULL,
-    "ExtensionNumber" bigint NOT NULL,
-    "Esign" bytea NOT NULL,
-    PRIMARY KEY ("FacultyID")
+    "HashedPassword" character varying NOT NULL,
+    "RoleID" int NOT NULL,
+     PRIMARY KEY ("ID")
 );
+CREATE TABLE Role
+(
+    "RoleID" int NOT NULL CHECK ("RoleID" BETWEEN 1 and 3),
+    "Role" character varying NOT NULL CHECK ("Role" in ('Admin','Faculty','Both')),
+     PRIMARY KEY ("RoleID")
+);
+CREATE TABLE Faculty
+(
+    "FacultyID" int NOT NULL REFERENCES Users("ID") ON DELETE CASCADE,
+    "FacultyType" character varying NOT NULL CHECK ("FacultyType" in ('Permanent','Contract/Guest','Visiting')),
+    "Department" character varying NOT NULL,
+    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SG)')),
+    "PanID" character varying(10) NOT NULL,
+    "PanPicture" character varying NOT NULL,
+    "ExtensionNumber" bigint NOT NULL CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999),
+    "Esign" character varying NOT NULL,
+    "TDS" real NOT NULL,
+     PRIMARY KEY ("FacultyID")
+);
+
 CREATE TABLE Account
 (
-    "BankName" character varying NOT NULL CHECK ("BankName" in ('State Bank of India','Canara Bank', 'Indian Bank')),
-    "FacultyID" character varying NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
+    "BankName" character varying NOT NULL CHECK ("BankName" in ('Canara Bank', 'Indian Bank','State Bank of India')),
+    "FacultyID" int NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
     "AccountNumber" bigint NOT NULL,
     "IFSCCode" character varying NOT NULL,
-    "Passbook" bytea NOT NULL,
-    "Priority" integer NOT NULL,
-    PRIMARY KEY ("BankName", "FacultyID")
+    "Passbook" character varying NOT NULL,
+     PRIMARY KEY ("FacultyID")
 );
 
 CREATE TABLE Course
@@ -43,7 +58,7 @@ CREATE TABLE Department
     "Branch" character varying NOT NULL,
     "DegreeType" character varying NOT NULL CHECK ("DegreeType" in ('Regular','Part-time')),
     "Department" character varying NOT NULL,
-    PRIMARY KEY ("DegreeType", "Branch")
+     PRIMARY KEY ("DegreeType", "Branch")
 );
 
 CREATE TABLE HonorariumType
@@ -56,7 +71,7 @@ CREATE TABLE HonorariumType
 CREATE TABLE Honorarium
 (
     "TransactionID" character varying NOT NULL,
-    "FacultyID" character varying NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
+    "FacultyID" int NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
     "CourseCode" character varying NOT NULL REFERENCES Course("CourseCode") ON DELETE CASCADE,
     "InitialAmount" integer NOT NULL,
     "FinalAmount" integer NOT NULL,
@@ -89,7 +104,7 @@ CREATE TABLE TimeTable
 (
     "Date" date NOT NULL,
     "CourseCode" character varying NOT NULL REFERENCES Course("CourseCode") ON DELETE CASCADE,
-    "PaperSetter" character varying NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
+    "PaperSetter" int NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
     "Invigilator" character varying NOT NULL,
     "AnnualSession" character varying NOT NULL,
     "ExamType" character varying NOT NULL CHECK ("ExamType" in ('Regular','Re-Appear(RA)')),
@@ -99,7 +114,7 @@ CREATE TABLE TimeTable
 
 CREATE TABLE Admin
 (
-    "ID" character varying NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
+    "ID" int NOT NULL,
     "Name" character varying NOT NULL,
     "Password" character varying NOT NULL,
     "PhoneNumber" bigint NOT NULL,
@@ -109,14 +124,15 @@ CREATE TABLE Admin
      PRIMARY KEY ("ID")
 );
 
-
 CREATE TABLE sessions (
-	token CHAR(43) PRIMARY KEY,
-	data BYTEA NOT NULL,
-	expiry TIMESTAMPTZ NOT NULL
+     token CHAR(43) PRIMARY KEY,
+     data BYTEA NOT NULL,
+     expiry TIMESTAMPTZ NOT NULL
 );
 
 INSERT INTO HonorariumType("TypeID","Type") VALUES(2,'Paper Valuation'), (1, 'Question Paper/Key');
+INSERT INTO Role("RoleID","Role") VALUES(1,'Admin'), (2, 'Faculty'), (3, 'Both');
+INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") VALUES(12345,'test',9876543210,'fac@gmail.com','$2a$12$qIIvAsFFmf979hkMXZhsbuTAhBGmr8oQFbqXY4fO/bCYTXItyaD92',1);
 CREATE USER webaukdcdom;
 ALTER USER webaukdcdom WITH PASSWORD 'neodom';
 CREATE INDEX sessions_expiry_idx ON sessions (expiry);
@@ -130,3 +146,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.TimeTable TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Admin TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Honorarium TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Department TO webaukdcdom;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.Users TO webaukdcdom;

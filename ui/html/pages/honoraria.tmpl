@@ -1,0 +1,29 @@
+{{define "title"}}Honorarium{{end}}
+{{define "main"}}
+{{$iaz:=.IsAuthorized}}
+{{if .Honoraria}}
+<table>
+<tr>
+<th>Transaction ID</th>
+<th>Course Code</th>
+<th>Honorarium Type</th>
+<th>Initial Amount</th>
+<th>Final Amount</th>
+<th>Created on</th>
+</tr>
+{{range .Honoraria}}
+<tr>
+<td><a href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}">{{.TransactionID}}</a></td>
+<td>{{.CourseCode}}</td>
+<td>{{if eq .TypeID 1}} Question Paper/Key {{else}} Paper Valuation {{end}}</td>
+<td>{{.InitialAmount}}</td>
+<td>{{.FinalAmount}}</td>
+<td>{{humanDate .CreatedTime}}</td>
+<td><a {{if $iaz}}href="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/print"{{else}}href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}/generate"{{end}} >Print Preview</a></td>
+</tr>
+{{end}}
+</table>
+{{else}}
+<h2>Please create a new honorarium</h2>
+{{end}}
+{{end}}

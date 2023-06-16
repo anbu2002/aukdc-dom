@@ -1,0 +1,53 @@
+{{define "main"}}	
+	<table class="center details">
+		<tr>
+			<th rowspan="2">SI.No</th>
+			<th rowspan="2">Course Code</th>
+			<th rowspan="2" width="200">Course Title</th>
+			<th colspan="2">No.Of</th>
+			<th colspan="2">Rate per</th>
+			<th rowspan="2">Amount</th>
+		</tr>
+		<tr>
+			<th width="7%">QP </th>
+			<th>Key</th>
+			<th>QP (2000/-)</th>
+			<th>Key (3000/-)</th>
+		</tr>
+		<tr height="180">
+			<td rowspan="3">1</td>
+			<td rowspan="3">{{.Course.CourseCode}}</td>
+			<td rowspan="3">{{.Course.Title}}</td>
+			<td rowspan="3">{{.QPK.QuestionPaperCount}}</td>
+			<td rowspan="3">{{.QPK.KeyCount}}</td>
+			<td rowspan="3">{{.QPK.QuestionPaperRate}}</td>
+			<td>{{.QPK.KeyRate}}<td>
+		<tr height="50">
+			<td class="noBorder">Total</td>
+			<td>{{.QPK.InitialAmount}}</td>
+		</tr>
+		<tr height="50">
+			<td class="noBorder">TDS 10%</td>
+			<td>{{multiplyFloat .QPK.InitialAmount .Faculty.TDS}}</td>
+		</tr>
+		<tr>
+			<td colspan="5"></td>
+			<td colspan="2" style="text-align:right">Final Amount</td>
+			<td>{{.QPK.FinalAmount}}</td>
+		</tr>
+	</table>
+	<div class="center">
+	<p> Recieved a sum of Ru.................(Rupees.......................................................................only). which is the amount after TDS @10%</p>
+	<br>
+	<div>
+	<p class="left">Date:</p>
+	<p class="right">Signature:</p>
+	</div>
+	..............................................................................................................................................................
+	<div>
+		<p class="textalign">Office Use</p>
+		<p> Passed a sum of Ru.................(Rupees............................................................................). TDS amount Ru...................(Rupees...................................................................) to be remitted in favour of PAN No..........................................</p>
+	<p class="right">DCOE:</p>
+	</div>
+	</div>
+{{end}}

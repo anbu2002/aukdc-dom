@@ -1,0 +1,26 @@
+{{define "title"}}Honorarium #{{.Honorarium.TransactionID}}{{end}}
+{{define "main"}}
+        {{with .QPK}}
+        <div class='event'>
+        <div class='metadata'>
+        </div>
+	<p>Question Paper Count: {{.QuestionPaperCount}}</p>
+	<p>Question Paper Rate: {{.QuestionPaperRate}}</p>
+	<p>Key Count: {{.KeyCount}}</p>
+	<p>Key Rate: {{.KeyRate}}</p>
+	{{else}}
+	{{with .VP}}
+	
+	<p>Answer Script Count: {{.AnswerScriptCount}}</p>
+	<p>Answer Script Rate: {{.AnswerScriptRate}}</p>
+	{{end}}{{end}}
+	{{with .Honorarium}}
+        <strong>{{.CourseCode}}</strong>
+        <pre><code>{{.InitialAmount}}</code></pre>
+        <pre><code>{{.FinalAmount}}</code></pre>
+        <div class='metadata'>
+        <p>Created: {{humanDate .CreatedTime}}</p>
+        </div>
+        </div>
+        {{end}}
+{{end}}

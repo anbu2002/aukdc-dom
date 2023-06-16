@@ -1,0 +1,27 @@
+{{define "title"}}Faculty List{{end}}
+{{define "main"}}
+<table>
+<tr>
+    <th>ID</th>
+    <th>Name</th> 
+    <th>Designation</th> 
+    <th>Department</th> 
+    <th>Phone No</th>
+    <th>Extension No</th> 
+</tr>
+{{if .Faculties}}
+<div class="row">
+{{range .Faculties}}
+<tr>
+    <td><button type="button" class="collapsible"><a href="/faculty/view/{{.ID}}">{{.ID}}</a></button></td>
+    <td>{{.Name}}</td>
+    <td>{{.Designation}}</td>
+    <td>{{.Department}}</td>
+    <td>{{.Phone}}</td>
+    <td>{{.Extension}}</td>
+</tr>
+{{end}}
+</div>
+{{end}}
+</table>
+{{end}}

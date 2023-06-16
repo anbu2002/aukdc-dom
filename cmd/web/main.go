@@ -21,8 +21,9 @@ import (
 type application struct{
 	errorLog *log.Logger
 	infoLog *log.Logger
-	honoraria *models.HonorariumModel
-	faculty *models.FacultyModel
+	honorarium *models.HonorariumModel
+	user *models.UserModel
+	other *models.OtherModel
 	templateCache map[string]*template.Template
 	formDecoder *form.Decoder
 	sessionManager *scs.SessionManager
@@ -60,8 +61,9 @@ func main(){
 	app:=&application{
 		errorLog:errorLog,
 		infoLog:infoLog,
-		honoraria:&models.HonorariumModel{DB: db},
-		faculty:&models.FacultyModel{DB: db},
+		honorarium:&models.HonorariumModel{DB: db},
+		user:&models.UserModel{DB: db},
+		other:&models.OtherModel{DB: db},
 		templateCache: templateCache,
 		formDecoder:formDecoder,
 		sessionManager:sessionManager,
@@ -85,6 +87,7 @@ func main(){
 
 	infoLog.Printf("Starting server on %s",*addr)
 	err= srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+//	err= srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
 

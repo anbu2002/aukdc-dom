@@ -1,12 +1,15 @@
 package validator
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"unicode/utf8"
 )
 
 var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+var IFSCRX = regexp.MustCompile("^[A-Z]{4}0[0-9]{6}")
+var PanRX = regexp.MustCompile("^[A-Z]{5}[0-9]{4}[A-Z]")
 
 type Validator struct{
 	NonFieldErrors []string
@@ -42,6 +45,7 @@ func NotBlank(value string) bool{
 }
 
 func MaxChars(value string, n int) bool{
+	fmt.Println(utf8.RuneCountInString(value))
 	return utf8.RuneCountInString(value)<=n
 }
 
@@ -59,4 +63,7 @@ func MinChars(value string, n int) bool {
 }
 func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
+}
+func IntegerRange(value int64, min, max int64) bool {
+        return value <= max && value >= min
 }
