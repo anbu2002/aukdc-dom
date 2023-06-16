@@ -12,7 +12,7 @@
 			<td rowspan="3">1</td>
 			<td rowspan="3">{{.Course.CourseCode}}</td>
 			<td rowspan="3">{{.Course.Title}}</td>
-			<td rowspan="3">(Rs. 20/-min. Rs. 100/- max.)</td>
+			<td rowspan="3">Rs. 20/-<br>(min. Rs. 100/-)</td>
 			<td>{{.VP.AnswerScriptCount}}</td>
 		</tr>
 		<tr height="50">
@@ -21,7 +21,7 @@
 		</tr>
 		<tr height="50">
 			<td class="noBorder">TDS 10%</td>
-			<td></td>
+			<td>{{multiplyFloat .VP.InitialAmount .Faculty.TDS}}</td>
 		</tr>
 		<tr>
 			<td colspan="3"></td>
@@ -30,15 +30,14 @@
 		</tr>
 	</table>
 	<div class="center">
-	<p> Recieved a sum of Ru.................(Rupees................................................................only) which is the amount after TDS @10%</p>
+	<p> Recieved a sum of Ru.................(Rupees.......................................................................only). which is the amount after TDS @10%</p>
 	<br>
-	<div>
 	<p class="left">Date:</p>
 	<p class="right">Signature:</p>
-	</div>
 	..............................................................................................................................................................
 	<div>
-		<p> Passed a sum of Ru.................(Rupees............................................................................). TDS amount Ru...................(Rupees...................................................................) to be remitted. In favour of PAN No..........................................</p>
+		<p class="textalign">Office Use</p>
+		<p> Passed a sum of Ru.................(Rupees............................................................................). TDS amount Ru...................(Rupees...................................................................) to be remitted in favour of PAN No..........................................</p>
 	<p class="right">DCOE:</p>
 	</div>
 	</div>

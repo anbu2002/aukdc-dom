@@ -26,33 +26,33 @@
                         <td rowspan="2" width="100">Name:</td>
                         <td rowspan="2" width="250">{{.Faculty.Name}}</td>
                         <td width="170">SBI A/c No:</td>
-                        <td></td>
+                        <td>{{if eq .BankDetails.BankName "State Bank of India"}}{{.BankDetails.AccountNumber}}{{end}}</td>
                 </tr>
                 <tr>
                         <td>IFSC No:</td>
-                        <td></td>
+                        <td>{{if eq .BankDetails.BankName "State Bank of India"}}{{.BankDetails.IFSC}}{{end}}</td>
                 </tr>
 
                 <tr>
                         <td rowspan="2">Designation:</td>
                         <td rowspan="2">{{.Faculty.Designation}}</td>
                         <td>Canara A/c No:</td>
-                        <td></td>
+                        <td>{{if eq .BankDetails.BankName "Canara Bank"}}{{.BankDetails.AccountNumber}}{{end}}</td>
                 </tr>
                 <tr>
                         <td>IFSC No:</td>
-                        <td></td>
+                        <td>{{if eq .BankDetails.BankName "Canara Bank"}}{{.BankDetails.IFSC}}{{end}}</td>
                 </tr>
 
                 <tr>
                         <td rowspan="2">Department:</td>
                         <td rowspan="2">{{.Faculty.Department}}</td>
                         <td>Indian Bank A/c No:</td>
-                        <td></td>
+                        <td>{{if eq .BankDetails.BankName "Indian Bank"}}{{.BankDetails.AccountNumber}}{{end}}</td>
                 </tr>
                 <tr>
                         <td>IFSC No:</td>
-                        <td></td>
+                        <td>{{if eq .BankDetails.BankName "Indian Bank"}}{{.BankDetails.IFSC}}{{end}}</td>
                 </tr>
 
                 <tr>
@@ -60,6 +60,8 @@
                         <td>{{.Course.Branch}}</td>
                         <td>PAN No:<br>(Mandatory)</td>
                         <td>{{.Faculty.PanID}}</td>
+		</tr>
+	</table>
  </header>
  <main>
   {{template "main" .}}

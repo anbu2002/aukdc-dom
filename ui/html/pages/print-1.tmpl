@@ -12,7 +12,7 @@
 			<th width="7%">QP </th>
 			<th>Key</th>
 			<th>QP (2000/-)</th>
-			<th>Key (2000/-)</th>
+			<th>Key (3000/-)</th>
 		</tr>
 		<tr height="180">
 			<td rowspan="3">1</td>
@@ -28,7 +28,7 @@
 		</tr>
 		<tr height="50">
 			<td class="noBorder">TDS 10%</td>
-			<td></td>
+			<td>{{multiplyFloat .QPK.InitialAmount .Faculty.TDS}}</td>
 		</tr>
 		<tr>
 			<td colspan="5"></td>
@@ -37,7 +37,7 @@
 		</tr>
 	</table>
 	<div class="center">
-	<p> Recieved a sum of Ru.................(Rupees................................................................only).which is the amount after TDS @10%</p>
+	<p> Recieved a sum of Ru.................(Rupees.......................................................................only). which is the amount after TDS @10%</p>
 	<br>
 	<div>
 	<p class="left">Date:</p>
@@ -45,7 +45,8 @@
 	</div>
 	..............................................................................................................................................................
 	<div>
-		<p> Passed a sum of Ru.................(Rupees............................................................................). TDS amount Ru...................(Rupees...................................................................) to be remitted. In favour of PAN No..........................................</p>
+		<p class="textalign">Office Use</p>
+		<p> Passed a sum of Ru.................(Rupees............................................................................). TDS amount Ru...................(Rupees...................................................................) to be remitted in favour of PAN No..........................................</p>
 	<p class="right">DCOE:</p>
 	</div>
 	</div>

@@ -35,8 +35,12 @@ func humanDate(t time.Time)string{
 
 	return t.UTC().Format("15:05 02/Jan/2006")
 }
+func multiplyFloat(x float32, y float32)float32{
+	return x*y
+}
 var functions=template.FuncMap{
 	"humanDate": humanDate,
+	"multiplyFloat": multiplyFloat,
 }
 
 func newTemplateCache()  (map[string]*template.Template, error){

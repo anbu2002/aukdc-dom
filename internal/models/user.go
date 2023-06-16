@@ -30,6 +30,7 @@ type Faculty struct{
 	PanPicture string
 	Extension int64
 	Esign string
+	TDS float32
 	BankDetails 
 }
 
@@ -39,12 +40,17 @@ type UserModel struct{
 
 
 func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email, facultyType, department, designation,  password, panID, panPicture string, extensionNumber int64, eSign string) error {
+	tdsper:=0.1
+	if facultyType=="Visiting" || facultyType=="Contract/Guest" {
+		tdsper=0.0
+	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
 	}
-	stmt := `With new_user as (INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") VALUES($1,$2,$3,$4,$5,2) RETURNING users."ID") INSERT INTO faculty ("FacultyID","FacultyType", "Department", "Designation", "PanID", "PanPicture", "ExtensionNumber", "Esign") VALUES((SELECT "ID" FROM new_User), $6, $7, $8, $9, $10, $11, $12);`
-	_,err=m.DB.Exec(stmt, facultyID, name, phoneNumber, email, string(hashedPassword),facultyType, department, designation, panID, panPicture, extensionNumber, eSign)
+
+	stmt := `With new_user as (INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") VALUES($1,$2,$3,$4,$5,2) RETURNING users."ID") INSERT INTO faculty ("FacultyID","FacultyType", "Department", "Designation", "PanID", "PanPicture", "ExtensionNumber", "Esign", "TDS") VALUES((SELECT "ID" FROM new_User), $6, $7, $8, $9, $10, $11, $12,$13);`
+	_,err=m.DB.Exec(stmt, facultyID, name, phoneNumber, email, string(hashedPassword),facultyType, department, designation, panID, panPicture, extensionNumber, eSign,tdsper)
 //Add code for ID
 	if err!=nil{
 		var pSQLError *pq.Error
@@ -140,7 +146,7 @@ func (m *UserModel) Exists(id int) (bool, error) {
 
 func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
         faculties:= []*Faculty{}
-        rows, err:= m.DB.Query(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "RoleID"=2`)
+        rows, err:= m.DB.Query(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign" ,"TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "RoleID"=2`)
         if err != nil {
                 return nil, err
         }
@@ -148,7 +154,7 @@ func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
 
         for rows.Next(){
                 s:=&Faculty{}
-                err=rows.Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.Department, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign)
+                err=rows.Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.Department, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign,&s.TDS)
         if err != nil {
                 return nil, err
         }
@@ -164,7 +170,7 @@ func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
 func (m *UserModel) GetFaculty(fid int) (*Faculty, error) {
         s := &Faculty{}
 
-        err:= m.DB.QueryRow(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "ID"=$1`,fid).Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.Department, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign)
+        err:= m.DB.QueryRow(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign","TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "ID"=$1`,fid).Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.Department, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign,&s.TDS)
         if err != nil {
                 if errors.Is(err, sql.ErrNoRows) {
                         return nil, ErrNoRecord

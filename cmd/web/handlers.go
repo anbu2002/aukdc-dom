@@ -429,14 +429,20 @@ func (app *application) qpkCreatePost(w http.ResponseWriter, r *http.Request) {
 		app.render(w, http.StatusUnprocessableEntity, "qpk.tmpl", data)
 		return
 	}
+	
+	faculty,err:=app.user.GetFaculty(id)
+	if err !=nil{
+		app.serverError(w,err)
+		return
+	}
 
-	tid, err := app.honorarium.InsertQPK(id, form.CourseCode, form.QuestionPaperCount, form.KeyCount)
+	tid, err := app.honorarium.InsertQPK(id, form.CourseCode, form.QuestionPaperCount, form.KeyCount, faculty.TDS)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 	app.sessionManager.Put(r.Context(), "flash", "You have created a honorarium successfully")
-	http.Redirect(w, r, "/honorarium/view/"+tid, http.StatusSeeOther)
+	http.Redirect(w, r, "/honorarium/view/1/"+tid, http.StatusSeeOther)
 }
 
 func (app *application) ansvCreate(w http.ResponseWriter, r *http.Request) {
@@ -467,14 +473,21 @@ func (app *application) ansvCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tid, err := app.honorarium.InsertValuedPaper(id, form.CourseCode, form.AnswerScriptCount)
+	faculty,err:=app.user.GetFaculty(id)
+	if err !=nil{
+		app.serverError(w,err)
+		return
+	}
+
+
+	tid, err := app.honorarium.InsertValuedPaper(id, form.CourseCode, form.AnswerScriptCount, faculty.TDS)
 	fmt.Println(tid)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 	app.sessionManager.Put(r.Context(), "flash", "You have created a honorarium successfully")
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/honorarium/view/2/"+tid, http.StatusSeeOther)
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {

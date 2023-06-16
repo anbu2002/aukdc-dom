@@ -29,6 +29,7 @@ CREATE TABLE Faculty
     "PanPicture" character varying NOT NULL,
     "ExtensionNumber" bigint NOT NULL CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999),
     "Esign" character varying NOT NULL,
+    "TDS" real NOT NULL,
      PRIMARY KEY ("FacultyID")
 );
 
