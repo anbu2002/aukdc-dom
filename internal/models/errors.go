@@ -13,6 +13,7 @@ var (
 	ErrDuplicateExtn= errors.New("models: duplicate extenstion")
 	ErrDuplicatePan= errors.New("models: duplicate pan id")
 	ErrDuplicateAccNo= errors.New("models: duplicate account number")
+	ErrExceed=errors.New("models: exceeds 5000Rs.")
 )
 
 

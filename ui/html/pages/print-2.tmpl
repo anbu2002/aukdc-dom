@@ -1,7 +1,15 @@
 {{define "main"}}	
+                <tr>
+                        <td>Mobile Number/Extn. Number:</td>
+			<td>{{.Faculty.Phone}}<br>{{.Faculty.Extension}}</td>
+                        <td>PAN No:<br>(Mandatory)</td>
+                        <td>{{.Faculty.PanID}}</td>
+		</tr>
+	</table>
 	<table class="center details">
 		<tr>
 			<th>SI.No</th>
+			<th>Branch</th>
 			<th>Course Code</th>
 			<th width="200">Course Title</th>
 			<th>Rate per Answer Script</th>
@@ -10,6 +18,7 @@
 		</tr>
 		<tr height="180">
 			<td rowspan="3">1</td>
+			<td rowspan="3">{{.VP.Branch}}</td>
 			<td rowspan="3">{{.Course.CourseCode}}</td>
 			<td rowspan="3">{{.Course.Title}}</td>
 			<td rowspan="3">Rs. 20/-<br>(min. Rs. 100/-)</td>
@@ -25,16 +34,15 @@
 		</tr>
 		<tr>
 			<td colspan="3"></td>
-			<td colspan="2" style="text-align:right">Final Amount</td>
+			<td colspan="3" style="text-align:right">Final Amount</td>
 			<td>{{.VP.FinalAmount}}</td>
 		</tr>
 	</table>
 	<div class="center">
 	<p> Recieved a sum of Ru.................(Rupees.......................................................................only). which is the amount after TDS @10%</p>
-	<br>
 	<p class="left">Date:</p>
 	<p class="right">Signature:</p>
-	..............................................................................................................................................................
+	..............................................................................................................................................................<br><strong>Recieved the foil sheets and answer sheets after verification</strong>
 	<div>
 		<p class="textalign">Office Use</p>
 		<p> Passed a sum of Ru.................(Rupees............................................................................). TDS amount Ru...................(Rupees...................................................................) to be remitted in favour of PAN No..........................................</p>

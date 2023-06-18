@@ -40,10 +40,10 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodPost, "/faculty/bankdetails", faculty.ThenFunc(app.addBankDetailsPost))
 
 	faculty=faculty.Append(app.requireBankDetails)
-	router.Handler(http.MethodGet, "/honorarium/qpk/create", faculty.ThenFunc(app.qpkCreate))
-	router.Handler(http.MethodPost, "/honorarium/qpk/create", faculty.ThenFunc(app.qpkCreatePost))
-	router.Handler(http.MethodGet, "/honorarium/ansv/create", faculty.ThenFunc(app.ansvCreate))
-	router.Handler(http.MethodPost, "/honorarium/ansv/create", faculty.ThenFunc(app.ansvCreatePost))
+	router.Handler(http.MethodGet, "/honorarium/create/qpk", faculty.ThenFunc(app.qpkCreate))
+	router.Handler(http.MethodPost, "/honorarium/create/qpk", faculty.ThenFunc(app.qpkCreatePost))
+	router.Handler(http.MethodGet, "/honorarium/create/ansv", faculty.ThenFunc(app.ansvCreate))
+	router.Handler(http.MethodPost, "/honorarium/create/ansv", faculty.ThenFunc(app.ansvCreatePost))
 
 	authorized := protected.Append(app.requireAuthority)
 

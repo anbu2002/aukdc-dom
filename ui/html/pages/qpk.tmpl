@@ -1,7 +1,20 @@
 {{define "title"}}Create QPK{{end}}
 {{define "main"}}
-<form action='/honorarium/qpk/create' method='POST'>
+<form action='/honorarium/create/qpk' method='POST'>
 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+
+<div>
+<label>Branch:</label>
+{{with .Form.FieldErrors.branch}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="branch">
+  <option disabled selected > Select an option </option>
+{{range .Programmes}}
+  <option value="{{.Branch}}">{{.Branch}}</option>
+{{end}}
+</select>
+</div>
 
 <div>
 <label>Course Code:</label>

@@ -21,6 +21,29 @@ header, nav, main, footer {
     padding: 2px calc((100% - 800px) / 2) 0;
 }
 
+#rightside{
+    top: 30%;
+    position:fixed;
+    right: 5%;   
+    width: 250px;
+}
+#openbtn{
+    background: #006699;
+    width: 250px;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    top: 25%;
+    right:5%;
+    position:fixed;
+}
+
+#openbtn:hover{
+    background: #004466;
+}
+#openbtn:active{
+    background: #440066;
+}
 main {
     margin-top: 54px;
     margin-bottom: 54px;
@@ -230,38 +253,6 @@ button:hover {
     border-radius: 3px;
 }
 
-.event pre {
-    padding: 18px;
-    border-top: 1px solid #E4E5E7;
-    border-bottom: 1px solid #E4E5E7;
-}
-
-.event .metadata {
-    background-color: #F7F9FA;
-    color: #6A6C6F;
-    padding: 0.75em 18px;
-    overflow: auto;
-}
-
-.event .metadata span {
-    float: right;
-}
-
-.event .metadata strong {
-    color: #34495E;
-}
-
-.event .metadata time {
-    display: inline-block;
-}
-
-.event .metadata time:first-child {
-    float: left;
-}
-
-.event .metadata time:last-child {
-    float: right;
-}
 div.flash {
     color: #FFFFFF;
     font-weight: bold;
@@ -288,6 +279,7 @@ table {
 }
 
 td, th {
+    font-size: 16px;
     text-align: left;
     padding: 9px 18px;
 }
@@ -308,4 +300,8 @@ footer {
     height: 60px;
     color: #6A6C6F;
     text-align: center;
+}
+
+.right{
+	float:right;
 }

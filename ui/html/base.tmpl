@@ -24,11 +24,14 @@
  {{end}}
   {{template "main" .}}
  </main>
+{{block "sidebar" .}}
+{{end}}
  <script src="/static/js/main.js" type="text/javascript"></script>
 </body>
 <footer>
 {{.CurrentYear}}
 </footer>
+</div>
 </html>
 {{end}}
 	
