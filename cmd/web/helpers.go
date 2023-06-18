@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"io"
+	"mime/multipart"
 	"os"
 	"strings"
 	"strconv"
@@ -109,20 +110,20 @@ func (app *application) hasBankDetails(r *http.Request) bool {
 	}
 	return hasBankDetails
 }
+//to optimize
+func (app *application) uploadImage(picture multipart.File, picID, imageName string) (error) {
 
-func (app *application) uploadImage(w http.ResponseWriter, r *http.Request, picID string, id int) (string, error) {
-	var form facultySignupForm
-	err := app.decodePostForm(r, &form)
-	r.ParseMultipartForm(32 << 20)
-	picture, handler, err := r.FormFile(picID)
-	if err != nil {
-		return "", err
-	}
+	file, err := os.OpenFile("uploads/"+picID+"/"+imageName, os.O_EXCL|os.O_WRONLY|os.O_CREATE, 0400)
 
-	defer picture.Close()
+	defer file.Close()
 	if err != nil {
-		return "", err
+		return err
 	}
+	io.Copy(file, picture)
+
+	return nil
+}
+func (app *application) createImagePath(handler *multipart.FileHeader, picID string, id int)(string){
 
 	facID:=strconv.Itoa(id)
 	splitsName := strings.Split(handler.Filename, ".")
@@ -130,14 +131,5 @@ func (app *application) uploadImage(w http.ResponseWriter, r *http.Request, picI
 
 	image:= facID+"_"+picID+"."+splitsName[lenfilename-1]
 
-	file, err := os.OpenFile("uploads/"+picID+"/"+image, os.O_WRONLY|os.O_EXCL|os.O_CREATE, 0700)
-
-	defer file.Close()
-	if err != nil {
-		return "", err
-	}
-	io.Copy(file, picture)
-
-	return image, nil
+	return image
 }
-

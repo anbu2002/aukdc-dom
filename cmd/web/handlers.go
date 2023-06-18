@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"io/fs"
 	"time"
 
 	"aukdc.dom.com/internal/models"
@@ -317,6 +316,7 @@ func (app *application) facultySignup(w http.ResponseWriter, r *http.Request) {
 func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request) {
 	var form facultySignupForm
 
+
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -342,28 +342,30 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	PanPicture,err := app.uploadImage(w, r,"panpic",form.FacultyID)
-	if err != nil {
-		if errors.Is(err, fs.ErrExist){
-			form.AddFieldError("facultyid", "FacultyID is already in use")
-			data:= app.newTemplateData(r)
-			data.Form = form
-			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
-			return
-		}
-		app.serverError(w, err)
-		return
-	}
-	Esign,err := app.uploadImage(w, r,"esign",form.FacultyID)
+	panPicture, handlerPan, err := r.FormFile("panpic")
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
+	defer panPicture.Close()
 
-	err = app.user.Insert(form.FacultyID, form.Name, form.Phone, form.Email, form.FacultyType, form.Department, form.Designation, form.Password, form.PanID, PanPicture, form.Extension, Esign)
+	esignPicture, handleresign, err := r.FormFile("esign")
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	defer esignPicture.Close()
+
+	PanPicPath:=app.createImagePath(handlerPan,"panpic",form.FacultyID)
+	ESPath:=app.createImagePath(handleresign,"esign",form.FacultyID)
+	
+	err = app.user.Insert(form.FacultyID, form.Name, form.Phone, form.Email, form.FacultyType, form.Department, form.Designation, form.Password, form.PanID, PanPicPath, form.Extension, ESPath)
 	if err != nil {
 		var flag bool
-		if errors.Is(err, models.ErrDuplicateEmail) {
+		if errors.Is(err, models.ErrDuplicateID){
+			form.AddFieldError("facultyid", "FacultyID is already in use")
+			flag=true
+		}else if errors.Is(err, models.ErrDuplicateEmail) {
 			form.AddFieldError("email", "Email address is already in use")
 			flag=true
 		}else if errors.Is(err, models.ErrDuplicatePhone){
@@ -385,6 +387,17 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 		app.serverError(w, err)
 		return
 	}
+	err = app.uploadImage(panPicture,"panpic",PanPicPath)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	err = app.uploadImage(esignPicture,"esign",ESPath)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
 	app.sessionManager.Put(r.Context(), "flash", "You have sucessfully signed up. Please log in.")
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
@@ -411,7 +424,6 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 	form.CheckField(validator.NotBlank(strconv.Itoa(form.AccountNumber)), "accountno", "This field must be a valid account number")
 //must be in format ABCD0678901
 	form.CheckField(validator.Matches(form.IFSC, validator.IFSCRX), "IFSC", "This field must be a valid IFSC code")
-	fmt.Println("handler", form.Passbook)
 
 	if !form.Valid() {
 		data := app.newTemplateData(r)
@@ -420,13 +432,20 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	Passbook,err := app.uploadImage(w, r,"passbook", id)
+	picture, handler, err := r.FormFile("passbook")
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
+	defer picture.Close()
 
+	Passbook:=app.createImagePath(handler,"passbook",id)
 	err = app.user.InsertBankDetails(id, form.BankName, form.AccountNumber, form.IFSC, Passbook)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	err = app.uploadImage(picture,"passbook", Passbook)
 	if err != nil {
 		app.serverError(w, err)
 		return

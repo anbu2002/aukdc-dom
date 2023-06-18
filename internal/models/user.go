@@ -61,7 +61,7 @@ func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email,
 					return ErrDuplicateID
 				}else if strings.Contains(pSQLError.Message, "users_PhoneNumber_key"){
 					return ErrDuplicatePhone
-				}else if strings.Contains(pSQLError.Message, "faculty_ExtenstionNumber_key"){
+				}else if strings.Contains(pSQLError.Message, "faculty_ExtensionNumber_key"){
 					return ErrDuplicateExtn
 				}else if strings.Contains(pSQLError.Message, "faculty_PanID_key"){
 					return ErrDuplicatePan
