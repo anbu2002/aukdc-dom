@@ -7,6 +7,7 @@ for (var i = 0; i < navLinks.length; i++) {
 	}
 }
 
+document.getElementById("print").addEventListener("load", window.print());
 document.getElementById("openbtn").addEventListener("click", function(){
 	  var x = document.getElementById("rightside");
 	  if (x.style.display === "none") {
@@ -21,4 +22,3 @@ document.getElementById("closebtn").addEventListener("click", function(){
 $(document).ready(function() {
     $('input[type="number"]').val('');
   });
-
