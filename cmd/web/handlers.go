@@ -505,8 +505,8 @@ func (app *application) qpkCreatePost(w http.ResponseWriter, r *http.Request) {
 	err := app.decodePostForm(r, &form)
 	form.CheckField(validator.NotBlank(form.CourseCode), "coursecode", "This field must not be blank")
 	form.CheckField(validator.NotBlank(form.Branch), "branch", "This field must not be blank")
-	form.CheckField(validator.IntegerRange(int64(form.QuestionPaperCount), 0, 2), "qc", "This field must be a valid number")
-	form.CheckField(validator.IntegerRange(int64(form.KeyCount), 0, 1), "kc", "This field must be a valid number")
+	form.CheckField(validator.NotBlank(strconv.Itoa(form.QuestionPaperCount)), "qc", "This field must be a valid number")
+	form.CheckField(validator.NotBlank(strconv.Itoa(form.KeyCount)), "kc", "This field must be a valid number")
 
 	if !form.Valid() {
 		app.sessionManager.Put(r.Context(), "flash",  "Please enter in valid details")
@@ -561,7 +561,7 @@ func (app *application) ansvCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	form.CheckField(validator.NotBlank(form.CourseCode), "coursecode", "This field must not be blank")
 	form.CheckField(validator.NotBlank(form.Branch), "branch", "This field must not be blank")
-	form.CheckField(validator.IntegerRange(int64(form.AnswerScriptCount), 1, 300 ), "ac", "This field must be a valid number")
+	form.CheckField(validator.NotBlank(strconv.Itoa(form.AnswerScriptCount)), "ac", "This field must be a valid number")
 
 	if !form.Valid() {
 		app.sessionManager.Put(r.Context(), "flash",  "Please enter in valid details")
