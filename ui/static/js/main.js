@@ -7,17 +7,15 @@ for (var i = 0; i < navLinks.length; i++) {
 	}
 }
 
-document.getElementById("openbtn").addEventListener("click", function(){
+var openbtn = document.getElementById("openbtn");
+openbtn.addEventListener('click', toggle);
+
+function toggle(){
 	  var x = document.getElementById("rightside");
 	  if (x.style.display === "none") {
-	    x.style.display = "block";
+		x.style.display = "block";
 	  } else {
-	    x.style.display = "none";
+		x.style.display = "none";
 	  }
-});
+}
 
-document.getElementById("print").addEventListener("load", window.print());
-
-$(document).ready(function() {
-    $('input[type="number"]').val('');
-  });
