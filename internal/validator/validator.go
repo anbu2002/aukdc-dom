@@ -8,7 +8,7 @@ import (
 )
 
 var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-var IFSCRX = regexp.MustCompile("^[A-Z]{4}0[0-9]{6}")
+var IFSCRX = regexp.MustCompile("^(SBIN|IOBA|CNRB)0[0-9]{6}")
 var PanRX = regexp.MustCompile("^[A-Z]{5}[0-9]{4}[A-Z]")
 
 type Validator struct{

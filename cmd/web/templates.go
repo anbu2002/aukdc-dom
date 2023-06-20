@@ -33,8 +33,7 @@ func humanDate(t time.Time)string{
 	if t.IsZero(){
 		return ""
 	}
-
-	return t.UTC().Format("15:05 02/Jan/2006")
+	return t.UTC().Format("2006-01-02 15:04:05")
 }
 func multiplyFloat(x float32, y float32)float32{
 	return x*y

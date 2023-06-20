@@ -32,7 +32,7 @@ type facultySignupForm struct {
 
 type bankDetailsForm struct {
 	BankName            string `form:"bankname"`
-	AccountNumber       int    `form:"accountno"`
+	AccountNumber       int64    `form:"accountno"`
 	IFSC                string `form:"IFSC"`
 	Passbook            any    `form:"passbook"`
 	validator.Validator `form:"-"`
@@ -344,6 +344,13 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 
 	panPicture, handlerPan, err := r.FormFile("panpic")
 	if err != nil {
+		if errors.Is(err, http.ErrMissingFile){
+			form.AddFieldError("panpic", "Please upload a valid picture")
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			return
+		}
 		app.serverError(w, err)
 		return
 	}
@@ -351,6 +358,13 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 
 	esignPicture, handleresign, err := r.FormFile("esign")
 	if err != nil {
+		if errors.Is(err, http.ErrMissingFile){
+			form.AddFieldError("esign", "Please upload valid picture")
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			return
+		}
 		app.serverError(w, err)
 		return
 	}
@@ -424,7 +438,8 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	form.CheckField(validator.NotBlank(form.BankName), "bank", "This field must not be blank")
-	form.CheckField(validator.NotBlank(strconv.Itoa(form.AccountNumber)), "accountno", "This field must be a valid account number")
+	form.CheckField(validator.MinChars(strconv.FormatInt(form.AccountNumber,10),10), "accountno", "This field must be a valid account number")
+	form.CheckField(validator.MaxChars(strconv.FormatInt(form.AccountNumber,10),16), "accountno", "This field must be a valid account number")
 //must be in format ABCD0678901
 	form.CheckField(validator.Matches(form.IFSC, validator.IFSCRX), "IFSC", "This field must be a valid IFSC code")
 
@@ -437,6 +452,13 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 
 	picture, handler, err := r.FormFile("passbook")
 	if err != nil {
+		if errors.Is(err, http.ErrMissingFile){
+			form.AddFieldError("passbook", "Please upload valid picture")
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			return
+		}
 		app.serverError(w, err)
 		return
 	}
@@ -483,13 +505,12 @@ func (app *application) qpkCreatePost(w http.ResponseWriter, r *http.Request) {
 	err := app.decodePostForm(r, &form)
 	form.CheckField(validator.NotBlank(form.CourseCode), "coursecode", "This field must not be blank")
 	form.CheckField(validator.NotBlank(form.Branch), "branch", "This field must not be blank")
-	form.CheckField(validator.NotBlank(strconv.Itoa(form.QuestionPaperCount)), "qc", "This field must be a valid number")
-	form.CheckField(validator.NotBlank(strconv.Itoa(form.KeyCount)), "kc", "This field must be a valid number")
+	form.CheckField(validator.IntegerRange(int64(form.QuestionPaperCount), 0, 1), "qc", "This field must be a valid number")
+	form.CheckField(validator.IntegerRange(int64(form.KeyCount), 0, 2), "kc", "This field must be a valid number")
 
 	if !form.Valid() {
-		data := app.newTemplateData(r)
-		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "qpk.tmpl", data)
+		app.sessionManager.Put(r.Context(), "flash",  "Please enter in valid details")
+		http.Redirect(w, r, "/honorarium/create/qpk", http.StatusSeeOther)
 		return
 	}
 	
@@ -502,7 +523,7 @@ func (app *application) qpkCreatePost(w http.ResponseWriter, r *http.Request) {
 	tid, err := app.honorarium.InsertQPK(id, form.CourseCode,form.Branch, form.QuestionPaperCount, form.KeyCount, faculty.TDS)
 	if err != nil {
 		if errors.Is(err, models.ErrExceed) {
-			app.sessionManager.Put(r.Context(), "flash",  "Final Amount Exceeds Rs. 5000, please try again")
+			app.sessionManager.Put(r.Context(), "flash",  "Final Amount is 0 or exceeds Rs. 5000, please try again")
 			http.Redirect(w, r, "/honorarium/create/qpk", http.StatusSeeOther)
 			return
 		}
@@ -540,12 +561,11 @@ func (app *application) ansvCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	form.CheckField(validator.NotBlank(form.CourseCode), "coursecode", "This field must not be blank")
 	form.CheckField(validator.NotBlank(form.Branch), "branch", "This field must not be blank")
-	form.CheckField(validator.NotBlank(strconv.Itoa(form.AnswerScriptCount)), "ac", "This field must be a valid number")
+	form.CheckField(validator.IntegerRange(int64(form.AnswerScriptCount), 1, 300 ), "ac", "This field must be a valid number")
 
 	if !form.Valid() {
-		data := app.newTemplateData(r)
-		data.Form = form
-		app.render(w, http.StatusUnprocessableEntity, "ansv.tmpl", data)
+		app.sessionManager.Put(r.Context(), "flash",  "Please enter in valid details")
+		http.Redirect(w, r, "/honorarium/create/ansv", http.StatusSeeOther)
 		return
 	}
 
@@ -560,7 +580,7 @@ func (app *application) ansvCreatePost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(tid)
 	if err != nil {
 		if errors.Is(err, models.ErrExceed) {
-			app.sessionManager.Put(r.Context(), "flash",  "Final Amount Exceeds Rs. 5000, please try again")
+			app.sessionManager.Put(r.Context(), "flash",  "Final Amount is 0 or exceeds Rs. 5000, please try again")
 			http.Redirect(w, r, "/honorarium/create/ansv", http.StatusSeeOther)
 			return
 		}

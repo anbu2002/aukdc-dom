@@ -116,6 +116,7 @@ CREATE TABLE TimeTable
      PRIMARY KEY ("Date", "CourseCode")
 );
 
+/*
 CREATE TABLE Admin
 (
     "ID" int NOT NULL,
@@ -127,7 +128,7 @@ CREATE TABLE Admin
     "Session" character varying NOT NULL ,
      PRIMARY KEY ("ID")
 );
-
+*/
 CREATE TABLE sessions (
      token CHAR(43) PRIMARY KEY,
      data BYTEA NOT NULL,

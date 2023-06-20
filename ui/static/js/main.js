@@ -7,7 +7,6 @@ for (var i = 0; i < navLinks.length; i++) {
 	}
 }
 
-document.getElementById("print").addEventListener("load", window.print());
 document.getElementById("openbtn").addEventListener("click", function(){
 	  var x = document.getElementById("rightside");
 	  if (x.style.display === "none") {
@@ -16,9 +15,9 @@ document.getElementById("openbtn").addEventListener("click", function(){
 	    x.style.display = "none";
 	  }
 });
-document.getElementById("closebtn").addEventListener("click", function(){
-	document.getElementById("sidebar").style.width = "0px";
-});
+
+document.getElementById("print").addEventListener("load", window.print());
+
 $(document).ready(function() {
     $('input[type="number"]').val('');
   });

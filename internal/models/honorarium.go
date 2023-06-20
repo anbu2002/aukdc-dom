@@ -39,7 +39,7 @@ func (m *HonorariumModel) InsertQPK(facultyID int,courseCode, branch string, que
 	initialAmount=questionPaperRate*float32(questionPaperCount)+keyRate*float32(keyCount)
 	finalAmount=initialAmount-initialAmount*tds
 
-	if finalAmount>5000{
+	if finalAmount>5000 || finalAmount==0{
 		return "",ErrExceed
 	}
 	tid:=uuid.New()
@@ -60,7 +60,7 @@ func (m *HonorariumModel) InsertValuedPaper(facultyID int, branch, courseCode st
 	finalAmount:=initialAmount-initialAmount*tds
 	if(finalAmount<100){
 		finalAmount=100
-	}else if finalAmount>5000{
+	}else if finalAmount>5000 || finalAmount==0{
 		return "",ErrExceed
 	}
 	tid:=uuid.New()
