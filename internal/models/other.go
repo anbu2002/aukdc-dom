@@ -5,16 +5,19 @@ import (
 )
 type OtherModel struct {
 	DB *sql.DB
-} 
-type Department struct {
+}
+type OfferedIn struct{
+	DepartmentName string
+}
+type Programme struct {
+	OfferedIn
 	Degree string
 	Branch string
 	DegreeType string
-	Department string
 }
 
 type Course struct {
-	Department
+	Programme
 	CourseCode string
 	Title string
 	Regulation string
@@ -23,12 +26,9 @@ type Course struct {
 
 
 func (m *OtherModel) GetCourse(coursecode string) (*Course, error) {
-	s := &Course{
-		Department: Department{
-		},
-	}
+	s := &Course{}
 
-        err:= m.DB.QueryRow(`SELECT "Degree","Branch","DegreeType","Department",Course."CourseCode","Title","Regulation" FROM Department FULL JOIN Course ON Course."CourseCode"=department."CourseCode" WHERE (Course."CourseCode"=$1);`,coursecode).Scan(&s.Degree,&s.Branch,&s.DegreeType,&s.Department.Department,&s.CourseCode,&s.Title,&s.Regulation)
+	err:= m.DB.QueryRow(`SELECT "Degree","Branch","DegreeType","DepartmentName","CourseCode","Title","Regulation" FROM co_offeredin_pro WHERE "CourseCode"=$1;`,coursecode).Scan(&s.Degree,&s.Branch,&s.DegreeType,&s.DepartmentName,&s.CourseCode,&s.Title,&s.Regulation)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
@@ -39,9 +39,31 @@ func (m *OtherModel) GetCourse(coursecode string) (*Course, error) {
 	return s, nil
 }
 
-func (m *OtherModel) GetAllCourses() ([]*Course, error){
+func (m *OtherModel) GetAllBranches() ([]*Programme, error){
+	programmes:=[]*Programme{}
+	rows, err:=m.DB.Query(`SELECT "Branch" FROM Programme`)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next(){
+		s:=&Programme{}
+		err=rows.Scan(&s.Branch)
+		if err != nil {
+			return nil, err
+		}
+		programmes=append(programmes,s)
+	}
+	if err=rows.Err();err!=nil{
+		return nil, err
+	}
+	return programmes, nil
+}
+func (m *OtherModel) GetAllCourseCodes() ([]*Course, error){
 	courses:=[]*Course{}
-	rows, err:=m.DB.Query(`SELECT * FROM course`)
+	rows, err:=m.DB.Query(`SELECT "CourseCode" FROM Course`)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +72,7 @@ func (m *OtherModel) GetAllCourses() ([]*Course, error){
 
 	for rows.Next(){
 		s:=&Course{}
-		err=rows.Scan(&s.CourseCode,&s.Title,&s.Regulation)
+		err=rows.Scan(&s.CourseCode)
 		if err != nil {
 			return nil, err
 		}

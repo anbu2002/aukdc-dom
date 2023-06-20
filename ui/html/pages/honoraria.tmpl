@@ -1,29 +1,72 @@
 {{define "title"}}Honorarium{{end}}
 {{define "main"}}
-{{$iaz:=.IsAuthorized}}
-{{if .Honoraria}}
+{{with .Honoraria}}
 <table>
 <tr>
-<th>Transaction ID</th>
+<th>Branch</th>
 <th>Course Code</th>
 <th>Honorarium Type</th>
 <th>Initial Amount</th>
 <th>Final Amount</th>
 <th>Created on</th>
 </tr>
-{{range .Honoraria}}
+{{range .}}
 <tr>
-<td><a href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}">{{.TransactionID}}</a></td>
+<td>{{.Branch}}</td>
 <td>{{.CourseCode}}</td>
 <td>{{if eq .TypeID 1}} Question Paper/Key {{else}} Paper Valuation {{end}}</td>
 <td>{{.InitialAmount}}</td>
 <td>{{.FinalAmount}}</td>
 <td>{{humanDate .CreatedTime}}</td>
-<td><a {{if $iaz}}href="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/print"{{else}}href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}/generate"{{end}} >Print Preview</a></td>
+<td><a href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}">View More</a></td>
 </tr>
 {{end}}
 </table>
 {{else}}
 <h2>Please create a new honorarium</h2>
+{{end}}
+{{end}}
+{{define "sidebar"}}
+{{with .Faculty}}
+<button id="openbtn">Faculty Details</button>  
+<div id="rightside">
+<table>
+<tr>
+    <th>Faculty ID</th>
+    <td>{{.ID}}</td>
+</tr>
+    <th>Name</th> 
+    <td>{{.Name}}</td>
+</tr>
+<tr>
+    <th>Designation</th> 
+    <td>{{.Designation}}</td>
+</tr>
+<tr>
+    <th>Department</th> 
+    <td>{{.DepartmentName}}</td>
+</tr>
+<tr>
+    <th>Faculty Type</th> 
+    <td>{{.FacultyType}}</td>
+</tr>
+<tr>
+    <th>Phone No</th>
+    <td>{{.Phone}}</td>
+</tr>
+<tr>
+    <th>Extension No</th> 
+    <td>{{.Extension}}</td>
+</tr>
+<tr>
+    <th>Pan ID</th> 
+    <td>{{.PanID}}</td>
+</tr>
+<tr>
+    <th>TDS</th> 
+    <td>{{multiplyFloat .TDS 100}}%</td>
+</tr>
+</table>
+</div>
 {{end}}
 {{end}}

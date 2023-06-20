@@ -7,7 +7,18 @@ for (var i = 0; i < navLinks.length; i++) {
 	}
 }
 
- $(document).ready(function() {
+document.getElementById("print").addEventListener("load", window.print());
+document.getElementById("openbtn").addEventListener("click", function(){
+	  var x = document.getElementById("rightside");
+	  if (x.style.display === "none") {
+	    x.style.display = "block";
+	  } else {
+	    x.style.display = "none";
+	  }
+});
+document.getElementById("closebtn").addEventListener("click", function(){
+	document.getElementById("sidebar").style.width = "0px";
+});
+$(document).ready(function() {
     $('input[type="number"]').val('');
   });
-

@@ -46,6 +46,8 @@ type userLoginForm struct {
 type honorariumCreateForm struct {
 	TransactionID       int       `form:"-"`
 	FacultyID           int       `form:"-"`
+	Department	    string    `form:"dept"`
+	Branch		    string    `form:"branch"`
 	CourseCode          string    `form:"coursecode"`
 	InitialAmount       int       `form:"-"`
 	FinalAmount         int       `form:"-"`
@@ -173,6 +175,7 @@ func (app *application) facultyView(w http.ResponseWriter, r *http.Request) {
 	data.Honoraria = honoraria
 	app.render(w, http.StatusOK, "honoraria.tmpl", data)
 }
+
 func (app *application) honorariumView(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
 	data := app.newTemplateData(r)
@@ -223,11 +226,16 @@ func (app *application) honorariumView(w http.ResponseWriter, r *http.Request) {
 		data.VP=vp
 		data.Honorarium=&vp.Honorarium
 	}
-
+	data.Faculty,err=app.user.GetFaculty(fid)
+	if err!=nil{
+		app.serverError(w, err)
+		return
+	}
 
 	app.render(w, http.StatusOK, "honorarium.tmpl", data)
 }
 func (app *application) generatePrint(w http.ResponseWriter, r *http.Request){
+//needs optimization
 	data := app.newTemplateData(r)
 	fid:=app.sessionManager.Get(r.Context(), "authenticatedUserID").(int)
 	var err error
@@ -246,7 +254,6 @@ func (app *application) generatePrint(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	data.Faculty=faculty
-	
 	var honorarium *models.Honorarium
 	params := httprouter.ParamsFromContext(r.Context())
 	hid := params.ByName("hid")
@@ -309,6 +316,7 @@ func (app *application) facultySignup(w http.ResponseWriter, r *http.Request) {
 func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request) {
 	var form facultySignupForm
 
+
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
@@ -334,24 +342,62 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	PanPicture,err := app.uploadImage(w, r,"panpic",form.FacultyID)
+	panPicture, handlerPan, err := r.FormFile("panpic")
 	if err != nil {
-		fmt.Println("handler", form.PanPicture)
 		app.serverError(w, err)
 		return
 	}
-	Esign,err := app.uploadImage(w, r,"esign",form.FacultyID)
+	defer panPicture.Close()
+
+	esignPicture, handleresign, err := r.FormFile("esign")
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	defer esignPicture.Close()
+
+	PanPicPath:=app.createImagePath(handlerPan,"panpic",form.FacultyID)
+	ESPath:=app.createImagePath(handleresign,"esign",form.FacultyID)
+	
+	err = app.user.Insert(form.FacultyID, form.Name, form.Phone, form.Email, form.FacultyType, form.Department, form.Designation, form.Password, form.PanID, PanPicPath, form.Extension, ESPath)
+	if err != nil {
+		var flag bool
+		if errors.Is(err, models.ErrDuplicateID){
+			form.AddFieldError("facultyid", "FacultyID is already in use")
+			flag=true
+		}else if errors.Is(err, models.ErrDuplicateEmail) {
+			form.AddFieldError("email", "Email address is already in use")
+			flag=true
+		}else if errors.Is(err, models.ErrDuplicatePhone){
+			form.AddFieldError("phone", "Phone Number is already in use")
+			flag=true
+		}else if errors.Is(err, models.ErrDuplicateExtn){
+			form.AddFieldError("extnumber", "Extension Number is already in use")
+			flag=true
+		}else if errors.Is(err, models.ErrDuplicatePan){
+			form.AddFieldError("panid", "PAN ID is already in use")
+			flag=true
+		}
+		if flag{
+			data := app.newTemplateData(r)
+			data.Form = form
+			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			return
+		}
+		app.serverError(w, err)
+		return
+	}
+	err = app.uploadImage(panPicture,"panpic",PanPicPath)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	err = app.uploadImage(esignPicture,"esign",ESPath)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	err = app.user.Insert(form.FacultyID, form.Name, form.Phone, form.Email, form.FacultyType, form.Department, form.Designation, form.Password, form.PanID, PanPicture, form.Extension, Esign)
-	if err != nil {
-//add error for duplicate id
-		app.serverError(w, err)
-		return
-	}
 	app.sessionManager.Put(r.Context(), "flash", "You have sucessfully signed up. Please log in.")
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
@@ -378,7 +424,6 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 	form.CheckField(validator.NotBlank(strconv.Itoa(form.AccountNumber)), "accountno", "This field must be a valid account number")
 //must be in format ABCD0678901
 	form.CheckField(validator.Matches(form.IFSC, validator.IFSCRX), "IFSC", "This field must be a valid IFSC code")
-	fmt.Println("handler", form.Passbook)
 
 	if !form.Valid() {
 		data := app.newTemplateData(r)
@@ -387,13 +432,20 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	Passbook,err := app.uploadImage(w, r,"passbook", id)
+	picture, handler, err := r.FormFile("passbook")
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
+	defer picture.Close()
 
+	Passbook:=app.createImagePath(handler,"passbook",id)
 	err = app.user.InsertBankDetails(id, form.BankName, form.AccountNumber, form.IFSC, Passbook)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	err = app.uploadImage(picture,"passbook", Passbook)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -403,13 +455,20 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *application) qpkCreate(w http.ResponseWriter, r *http.Request) {
+	//needs optimization
 	data := app.newTemplateData(r)
-	courses, err := app.other.GetAllCourses()
+	courses, err := app.other.GetAllCourseCodes()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	branches, err := app.other.GetAllBranches()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 	data.Courses = courses
+	data.Programmes=branches
 	data.Form = qpkCreateForm{}
 	app.render(w, http.StatusOK, "qpk.tmpl", data)
 }
@@ -420,6 +479,7 @@ func (app *application) qpkCreatePost(w http.ResponseWriter, r *http.Request) {
 
 	err := app.decodePostForm(r, &form)
 	form.CheckField(validator.NotBlank(form.CourseCode), "coursecode", "This field must not be blank")
+	form.CheckField(validator.NotBlank(form.Branch), "branch", "This field must not be blank")
 	form.CheckField(validator.NotBlank(strconv.Itoa(form.QuestionPaperCount)), "qc", "This field must be a valid number")
 	form.CheckField(validator.NotBlank(strconv.Itoa(form.KeyCount)), "kc", "This field must be a valid number")
 
@@ -436,8 +496,13 @@ func (app *application) qpkCreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tid, err := app.honorarium.InsertQPK(id, form.CourseCode, form.QuestionPaperCount, form.KeyCount, faculty.TDS)
+	tid, err := app.honorarium.InsertQPK(id, form.CourseCode,form.Branch, form.QuestionPaperCount, form.KeyCount, faculty.TDS)
 	if err != nil {
+		if errors.Is(err, models.ErrExceed) {
+			app.sessionManager.Put(r.Context(), "flash",  "Final Amount Exceeds Rs. 5000, please try again")
+			http.Redirect(w, r, "/honorarium/create/qpk", http.StatusSeeOther)
+			return
+		}
 		app.serverError(w, err)
 		return
 	}
@@ -446,14 +511,21 @@ func (app *application) qpkCreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) ansvCreate(w http.ResponseWriter, r *http.Request) {
+	//needs optimization
 	data := app.newTemplateData(r)
-	courses, err := app.other.GetAllCourses()
+	courses, err := app.other.GetAllCourseCodes()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	branches, err := app.other.GetAllBranches()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 	data.Courses = courses
-	data.Form = qpkCreateForm{}
+	data.Programmes=branches
+	data.Form = ansvCreateForm{}
 	app.render(w, http.StatusOK, "ansv.tmpl", data)
 }
 
@@ -464,6 +536,7 @@ func (app *application) ansvCreatePost(w http.ResponseWriter, r *http.Request) {
 	err := app.decodePostForm(r, &form)
 
 	form.CheckField(validator.NotBlank(form.CourseCode), "coursecode", "This field must not be blank")
+	form.CheckField(validator.NotBlank(form.Branch), "branch", "This field must not be blank")
 	form.CheckField(validator.NotBlank(strconv.Itoa(form.AnswerScriptCount)), "ac", "This field must be a valid number")
 
 	if !form.Valid() {
@@ -480,9 +553,14 @@ func (app *application) ansvCreatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 
-	tid, err := app.honorarium.InsertValuedPaper(id, form.CourseCode, form.AnswerScriptCount, faculty.TDS)
+	tid, err := app.honorarium.InsertValuedPaper(id, form.Branch, form.CourseCode, form.AnswerScriptCount, faculty.TDS)
 	fmt.Println(tid)
 	if err != nil {
+		if errors.Is(err, models.ErrExceed) {
+			app.sessionManager.Put(r.Context(), "flash",  "Final Amount Exceeds Rs. 5000, please try again")
+			http.Redirect(w, r, "/honorarium/create/ansv", http.StatusSeeOther)
+			return
+		}
 		app.serverError(w, err)
 		return
 	}

@@ -24,7 +24,7 @@ type BankDetails struct{
 type Faculty struct{
 	User
 	FacultyType string
-	Department string
+	DepartmentName string
 	Designation string
 	PanID string
 	PanPicture string
@@ -49,14 +49,23 @@ func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email,
 		return err
 	}
 
-	stmt := `With new_user as (INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") VALUES($1,$2,$3,$4,$5,2) RETURNING users."ID") INSERT INTO faculty ("FacultyID","FacultyType", "Department", "Designation", "PanID", "PanPicture", "ExtensionNumber", "Esign", "TDS") VALUES((SELECT "ID" FROM new_User), $6, $7, $8, $9, $10, $11, $12,$13);`
+	stmt := `With new_user as (INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") VALUES($1,$2,$3,$4,$5,2) RETURNING users."ID") INSERT INTO faculty ("FacultyID","FacultyType", "DepartmentName", "Designation", "PanID", "PanPicture", "ExtensionNumber", "Esign", "TDS") VALUES((SELECT "ID" FROM new_User), $6, $7, $8, $9, $10, $11, $12,$13);`
 	_,err=m.DB.Exec(stmt, facultyID, name, phoneNumber, email, string(hashedPassword),facultyType, department, designation, panID, panPicture, extensionNumber, eSign,tdsper)
-//Add code for ID
 	if err!=nil{
 		var pSQLError *pq.Error
 		if errors.As(err, &pSQLError){
-			if pSQLError.Code == "23505" && strings.Contains(pSQLError.Message, "users_uc_email"){
-			return ErrDuplicateEmail
+			if pSQLError.Code == "23505"{
+				if strings.Contains(pSQLError.Message, "users_Email_key"){
+					return ErrDuplicateEmail
+				}else if strings.Contains(pSQLError.Message, "users_pkey"){
+					return ErrDuplicateID
+				}else if strings.Contains(pSQLError.Message, "users_PhoneNumber_key"){
+					return ErrDuplicatePhone
+				}else if strings.Contains(pSQLError.Message, "faculty_ExtensionNumber_key"){
+					return ErrDuplicateExtn
+				}else if strings.Contains(pSQLError.Message, "faculty_PanID_key"){
+					return ErrDuplicatePan
+				}
 			}
 		}
 		return err
@@ -67,7 +76,13 @@ func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email,
 func (m *UserModel) InsertBankDetails(facultyID int, bankName string, accountNumber int, IFSC, passbook string) error{
 	_,err:=m.DB.Exec(`INSERT INTO account("BankName","FacultyID","AccountNumber","IFSCCode","Passbook") VALUES ($1,$2,$3,$4,$5)`,bankName,facultyID,accountNumber,IFSC,passbook)
 	if err!=nil{
+		var pSQLError *pq.Error
+		if errors.As(err, &pSQLError){
+			if pSQLError.Code == "23505" && strings.Contains(pSQLError.Message, "account__pkey"){
+				return ErrDuplicateAccNo
+			}
 		return err
+		}
 	}
 	return nil
 	
@@ -146,7 +161,7 @@ func (m *UserModel) Exists(id int) (bool, error) {
 
 func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
         faculties:= []*Faculty{}
-        rows, err:= m.DB.Query(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign" ,"TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "RoleID"=2`)
+        rows, err:= m.DB.Query(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","DepartmentName","Designation","PanID","PanPicture","ExtensionNumber","Esign" ,"TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "RoleID"=2`)
         if err != nil {
                 return nil, err
         }
@@ -154,7 +169,7 @@ func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
 
         for rows.Next(){
                 s:=&Faculty{}
-                err=rows.Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.Department, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign,&s.TDS)
+                err=rows.Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.DepartmentName, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign,&s.TDS)
         if err != nil {
                 return nil, err
         }
@@ -170,7 +185,7 @@ func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
 func (m *UserModel) GetFaculty(fid int) (*Faculty, error) {
         s := &Faculty{}
 
-        err:= m.DB.QueryRow(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","Department","Designation","PanID","PanPicture","ExtensionNumber","Esign","TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "ID"=$1`,fid).Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.Department, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign,&s.TDS)
+        err:= m.DB.QueryRow(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","DepartmentName","Designation","PanID","PanPicture","ExtensionNumber","Esign","TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "ID"=$1`,fid).Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.DepartmentName, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign,&s.TDS)
         if err != nil {
                 if errors.Is(err, sql.ErrNoRows) {
                         return nil, ErrNoRecord

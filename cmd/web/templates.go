@@ -16,6 +16,7 @@ type templateData struct {
 	Honoraria []*models.Honorarium
 	QPK *models.QPK
 	VP *models.ValuedPaper
+	Programmes []*models.Programme
 	Course *models.Course
 	Courses []*models.Course
 	Faculty *models.Faculty
