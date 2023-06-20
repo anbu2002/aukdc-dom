@@ -14,6 +14,7 @@ var (
 	ErrDuplicatePan= errors.New("models: duplicate pan id")
 	ErrDuplicateAccNo= errors.New("models: duplicate account number")
 	ErrExceed=errors.New("models: exceeds 5000Rs.")
+	ErrInvalidDepartment=errors.New("models: please enter in the right department name" )
 )
 
 

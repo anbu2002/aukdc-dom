@@ -377,6 +377,9 @@ func (app *application) facultySignupPost(w http.ResponseWriter, r *http.Request
 		}else if errors.Is(err, models.ErrDuplicatePan){
 			form.AddFieldError("panid", "PAN ID is already in use")
 			flag=true
+		}else if errors.Is(err, models.ErrInvalidDepartment){
+			form.AddFieldError("dept", "Please enter in the right department")
+			flag=true
 		}
 		if flag{
 			data := app.newTemplateData(r)
