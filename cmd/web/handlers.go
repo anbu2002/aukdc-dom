@@ -437,7 +437,7 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	form.CheckField(validator.NotBlank(form.BankName), "bank", "This field must not be blank")
+	form.CheckField(validator.NotBlank(form.BankName), "bankname", "This field must not be blank")
 	form.CheckField(validator.MinChars(strconv.FormatInt(form.AccountNumber,10),10), "accountno", "This field must be a valid account number")
 	form.CheckField(validator.MaxChars(strconv.FormatInt(form.AccountNumber,10),16), "accountno", "This field must be a valid account number")
 //must be in format ABCD0678901
@@ -456,7 +456,7 @@ func (app *application) addBankDetailsPost(w http.ResponseWriter, r *http.Reques
 			form.AddFieldError("passbook", "Please upload valid picture")
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w, http.StatusUnprocessableEntity, "signup.tmpl", data)
+			app.render(w, http.StatusUnprocessableEntity, "bankdetails.tmpl", data)
 			return
 		}
 		app.serverError(w, err)
