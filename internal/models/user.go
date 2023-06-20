@@ -17,7 +17,7 @@ type User struct{
 }
 type BankDetails struct{
 	BankName string
-	AccountNumber int
+	AccountNumber int64
 	IFSC string
 	Passbook string
 }
@@ -75,7 +75,7 @@ func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email,
 	return nil
 }
 
-func (m *UserModel) InsertBankDetails(facultyID int, bankName string, accountNumber int, IFSC, passbook string) error{
+func (m *UserModel) InsertBankDetails(facultyID int, bankName string, accountNumber int64, IFSC, passbook string) error{
 	_,err:=m.DB.Exec(`INSERT INTO account("BankName","FacultyID","AccountNumber","IFSCCode","Passbook") VALUES ($1,$2,$3,$4,$5)`,bankName,facultyID,accountNumber,IFSC,passbook)
 	if err!=nil{
 		var pSQLError *pq.Error
