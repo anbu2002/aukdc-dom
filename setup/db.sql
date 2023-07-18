@@ -30,14 +30,14 @@ CREATE TABLE Role
 CREATE TABLE Faculty
 (
     "FacultyID" int NOT NULL REFERENCES Users("ID") ON DELETE CASCADE,
-    "FacultyType" character varying NOT NULL CHECK ("FacultyType" in ('Permanent','Contract/Guest','Visiting')),
     "DepartmentName" character varying NOT NULL REFERENCES Department("DepartmentName") ON DELETE CASCADE,
-    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SG)')),
-    "PanID" character varying(10) NOT NULL UNIQUE,
-    "PanPicture" character varying NOT NULL,
-    "ExtensionNumber" bigint NOT NULL CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999) UNIQUE,
-    "Esign" character varying NOT NULL,
-    "TDS" real NOT NULL,
+    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor and Head', 'Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SRG)', 'Assistant Professor (SLG)')),
+    "FacultyType" character varying CHECK ("FacultyType" in ('Permanent','Contract/Guest','Visiting')),
+    "PanID" character varying(10) UNIQUE,
+    "PanPicture" character varying,
+    "ExtensionNumber" bigint CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999) UNIQUE,
+    "Esign" character varying,
+    "TDS" real,
      PRIMARY KEY ("FacultyID")
 );
 
@@ -143,6 +143,7 @@ INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") V
 \i setup/copy/programmelist.sql
 \i setup/copy/courselist-2015.sql
 \i setup/copy/courselist-2019.sql
+\i setup/copy/faculty.sql
 
 CREATE VIEW co_offeredin_pro AS SELECT "Degree","Branch","DegreeType","DepartmentName","CourseCode","Title","Regulation" FROM Course FULL JOIN Programme ON Course."OfferedIn"=Programme."DepartmentName";
 
@@ -156,7 +157,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.Course TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public."Paper Valuation" TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public."Question Paper/Key" TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.TimeTable TO webaukdcdom;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.Admin TO webaukdcdom;
+/*
+	GRANT SELECT, INSERT, UPDATE, DELETE ON public.Admin TO webaukdcdom;
+*/
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Honorarium TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Department TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Programme TO webaukdcdom;

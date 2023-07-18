@@ -27,8 +27,8 @@
 			<td rowspan="3">{{.Course.Title}}</td>
 			<td rowspan="3">{{.QPK.QuestionPaperCount}}</td>
 			<td rowspan="3">{{.QPK.KeyCount}}</td>
-			<td rowspan="3">{{.QPK.QuestionPaperRate}}</td>
-			<td>{{.QPK.KeyRate}}<td>
+			<td rowspan="3">{{multiplyFloatInt .QPK.QuestionPaperRate .QPK.QuestionPaperCount}}</td>
+			<td>{{multiplyFloatInt .QPK.KeyRate .QPK.KeyCount}}<td>
 		<tr height="50">
 			<td class="noBorder">Total</td>
 			<td>{{.QPK.InitialAmount}}</td>
