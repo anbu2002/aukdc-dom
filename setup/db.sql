@@ -27,18 +27,19 @@ CREATE TABLE Role
     "Role" character varying NOT NULL CHECK ("Role" in ('Admin','Faculty','Both')),
      PRIMARY KEY ("RoleID")
 );
+
 CREATE TABLE Faculty
 (
     "FacultyID" int NOT NULL REFERENCES Users("ID") ON DELETE CASCADE,
     "DepartmentName" character varying NOT NULL REFERENCES Department("DepartmentName") ON DELETE CASCADE,
     "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor and Head', 'Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SRG)', 'Assistant Professor (SLG)')),
-    "FacultyType" character varying CHECK ("FacultyType" in ('Permanent','Contract/Guest','Visiting')),
+    "FacultyType" character varying CHECK ("FacultyType" in ('Permanent','Contract/Guest','Visiting')) ,
     "PanID" character varying(10) UNIQUE,
     "PanPicture" character varying,
     "ExtensionNumber" bigint CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999) UNIQUE,
     "Esign" character varying,
     "TDS" real,
-     PRIMARY KEY ("FacultyID")
+     PRIMARY KEY ("FacultyID"),
 );
 
 CREATE TABLE Account
@@ -76,7 +77,7 @@ CREATE TABLE Honorarium
     "TransactionID" character varying NOT NULL,
     "FacultyID" int NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
     "Branch" character varying NOT NULL REFERENCES Programme("Branch"),
-    "CourseCode" character varying NOT NULL REFERENCES Course("CourseCode") ON DELETE CASCADE,
+    "CourseCode" character varying NOT NULL ,
     "InitialAmount" integer NOT NULL,
     "FinalAmount" integer NOT NULL,
     "TypeID" integer NOT NULL REFERENCES HonorariumType("TypeID"),
@@ -134,6 +135,30 @@ CREATE TABLE sessions (
      data BYTEA NOT NULL,
      expiry TIMESTAMPTZ NOT NULL
 );
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; 
+CREATE TABLE Temp_Faculty
+(
+    "FacultyID" int NOT NULL,
+    "Name" character varying NOT NULL,
+    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor and Head', 'Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SRG)', 'Assistant Professor (SLG)')),
+    "DepartmentName" character varying NOT NULL REFERENCES Department("DepartmentName") ON DELETE CASCADE,
+    "Password" character varying NOT NULL DEFAULT(uuid_generate_v4()),
+    UNIQUE ("Password")
+);
+
+CREATE FUNCTION removeFaculty() RETURNS TRIGGER AS $Temp_Faculty$ 
+BEGIN
+    DELETE FROM Temp_faculty 
+    WHERE Temp_Faculty."FacultyID" = NEW."FacultyID";
+    RETURN NULL;
+END;
+$Temp_Faculty$ LANGUAGE plpgsql;
+
+CREATE TRIGGER RemoveFromTemp 
+BEFORE INSERT ON Faculty 
+FOR EACH ROW 
+EXECUTE FUNCTION removeFaculty();
 
 INSERT INTO HonorariumType("TypeID","Type") VALUES(2,'Paper Valuation'), (1, 'Question Paper/Key');
 INSERT INTO Role("RoleID","Role") VALUES(1,'Admin'), (2, 'Faculty'), (3, 'Both');
