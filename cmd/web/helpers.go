@@ -10,8 +10,6 @@ import (
 
 	"io"
 	"mime/multipart"
-	"os"
-	"strconv"
 	"strings"
 
 	"github.com/go-playground/form/v4"
@@ -111,26 +109,19 @@ func (app *application) hasBankDetails(r *http.Request) bool {
 	return hasBankDetails
 }
 
-// to optimize
-func (app *application) uploadImage(picture multipart.File, picID, imageName string) error {
-
-	file, err := os.OpenFile("ui/static/uploads/"+picID+"/"+imageName, os.O_EXCL|os.O_WRONLY|os.O_CREATE, 0400)
-
-	defer file.Close()
-	if err != nil {
-		return err
+func (app *application) convertImage(file multipart.File)([]byte, error) {
+	imageData := make([]byte, 0)
+	buf := make([]byte, 4096)
+	for {
+		n, err := file.Read(buf)
+		if n == 0 || err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
+		}
+		imageData = append(imageData, buf[:n]...)
 	}
-	io.Copy(file, picture)
-
-	return nil
+	return imageData, nil
 }
-func (app *application) createImagePath(handler *multipart.FileHeader, picID string, id int) string {
 
-	facID := strconv.Itoa(id)
-	splitsName := strings.Split(handler.Filename, ".")
-	var lenfilename = len(splitsName)
-
-	image := facID + "_" + picID + "." + splitsName[lenfilename-1]
-
-	return image
-}

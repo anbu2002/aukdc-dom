@@ -31,7 +31,7 @@
 	</tr>
 	{{end}}
 {{end}}
-	{{with .Honorarium}}
+{{with .Honorarium}}
 	<tr>
 	<th>Branch:</th>
         <td>{{.Branch}}</td>
@@ -54,9 +54,10 @@
 	</tr>
 	</tr>
 </table>
-	<a class="right" {{if $iaz}}href="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/print"{{else}}href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}/generate"{{end}} >Print Preview</a>
-        {{end}}
+<div class="right"><a {{if $iaz}}href="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/print"{{else}}href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}/generate"{{end}} >Print Preview</a></div>
 {{end}}
+{{end}}
+
 {{define "sidebar"}}
 {{with .Faculty}}
 <dialog id="dialog">

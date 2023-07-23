@@ -2,7 +2,7 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-size: 18px;
+    font-size: 1em;
 	font-family:"Ubuntu Mono", monospace;
 }
 
@@ -15,28 +15,39 @@ body {
     background-color: #F1F3F6;
     color: #34495E;
     overflow-y: scroll;
+	overflow-x: none;
 }
 
-header, nav, main, footer {
+nav, footer {
+    background: #006699;
     padding: 2px calc((100% - 800px) / 2) 0;
 }
 
+fieldset{
+	padding: 10px;
+}
+main {
+	padding: 10px;
+	margin: 0px calc((100% - 800px)/2) 0px;
+    min-height: calc(100vh - 125px);
+    overflow: auto;
+}
 #rightside{
-    top: 33%;
+    top: 14%;
     position: fixed;
 	max-height: 50%;
 	overflow-y: auto;
     overflow-x: hidden;
     right: 0;   
-    width: 250px;
+    width: 15.63em;
 }
 #openbtn{
     background: #006699;
     width: 250px;
     color: white;
-    padding: 10px 15px;
+    padding: 0.63em 0.94em;
     border: none;
-    top: 28%;
+    top: 10%;
     right:0;
     position: fixed;
 }
@@ -96,7 +107,7 @@ dialog:not(:target):not([open]){
     top: 15px;
     right: 35px;
     color: #f1f1f1;
-    font-size: 40px;
+    font-size: 2.22em;
     font-weight: bold;
     transition: 0.3s;
   }
@@ -109,15 +120,9 @@ dialog:not(:target):not([open]){
   }
   
 
-main {
-    margin-top: 54px;
-    margin-bottom: 54px;
-    min-height: calc(100vh - 345px);
-    overflow: auto;
-}
 
 h1 a {
-    font-size: 36px;
+    font-size: 2em;
     font-weight: bold;
     background-image: url("/static/img/logo.png");
     background-repeat: no-repeat;
@@ -134,7 +139,7 @@ h1 a:hover {
 }
 
 h2 {
-    font-size: 22px;
+    font-size: 1.22em;
     margin-bottom: 36px;
     position: relative;
     top: -9px;
@@ -150,35 +155,19 @@ main a:hover {
     text-decoration: underline;
 }
 
-textarea, input:not([type="submit"]) {
-    font-size: 18px;
+input:not([type="submit"]) {
+    font-size: 1em;
     font-family: "Ubuntu Mono", monospace;
-}
-
-header {
-    background-size: 100% 6px;
-    background-repeat: no-repeat;
-    border-bottom: 1px solid #E4E5E7;
-    overflow: auto;
-    padding-top: 33px;
-    padding-bottom: 27px;
-    text-align: center;
-}
-
-header a {
-    color: #34495E;
-    text-decoration: none;
 }
 
 nav {
     border-bottom: 1px solid #E4E5E7;
-    background: #006699;
     height: 60px;
 
 }
 nav div{
     float: left;
-    font-size:0px;
+    font-size: 1em;
 }
 nav div:last-child {
     text-align: right;
@@ -246,6 +235,10 @@ a.button:hover, input[type="submit"]:hover {
     text-decoration: none;
 }
 
+fieldset {
+    background-color: #D1D3D6;
+}
+
 form div {
     margin-bottom: 18px;
 }
@@ -268,13 +261,10 @@ form input[type="radio"] {
     margin-left: 18px;
 }
 
-form input[type="text"], form input[type="password"], form input[type="email"], form input[type="number"], form input[type="tel"] {
-    padding: 0.75em 18px;
+form input[type="text"], form input[type="password"], form input[type="email"], form input[type="number"], form input[type="tel"], select {
+    padding: 0.75em 1em;
     width: 100%;
-}
-
-form input[type=text], form input[type="password"], form input[type="email"], form input[type="number"], form input[type="tel"], textarea {
-    color: #6A6C6F;
+    color: #000;
     background: #FFFFFF;
     border: 1px solid #E4E5E7;
     border-radius: 3px;
@@ -282,6 +272,7 @@ form input[type=text], form input[type="password"], form input[type="email"], fo
 
 form label {
     display: inline-block;
+    color: #000;
     margin-bottom: 9px;
 }
 
@@ -296,11 +287,6 @@ form label {
     border-width: 2px !important;
 }
 
-textarea {
-    padding: 18px;
-    width: 100%;
-    height: 266px;
-}
 
 button {
     background: none;
@@ -343,7 +329,7 @@ table {
 }
 
 td, th {
-    font-size: 16px;
+    font-size: 0.88em;
     text-align: left;
     padding: 9px 18px;
 }
@@ -360,12 +346,57 @@ footer {
     border-top: 1px solid #E4E5E7;
     padding-top: 17px;
     padding-bottom: 15px;
-    background: #F7F9FA;
     height: 60px;
-    color: #6A6C6F;
+    color: #F1F1F1;
     text-align: center;
 }
 
 .right{
 	float:right;
+	width:50%;
+	padding-left:5px;
+	text-align: right;
 }
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.left{
+	float:left;
+	padding-right:5px;
+	width:50%;
+}
+
+.imagePreview {
+    display: flex;
+	border-style: none;
+    flex-wrap: wrap;
+}
+.imagePreview img {
+	max-width: 180px;
+	min-width: 180px;
+	max-height: 180px;
+	min-height: 180px;
+	border-style: none;
+}
+
+.tab, .none {
+	display: none;
+}
+
+.tab.active, .active {
+	display: block;
+}
+
+.stepButton{
+  background-color: #62CB31;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  float: right;
+  display: block;
+}
+
