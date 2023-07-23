@@ -77,6 +77,7 @@ func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email,
 }
 
 func (m *UserModel) InsertBankDetails(facultyID int, bankName string, accountNumber int64, IFSC string, passbook []byte) error{
+
 	_,err:=m.DB.Exec(`INSERT INTO account("BankName","FacultyID","AccountNumber","IFSCCode","Passbook") VALUES ($1,$2,$3,$4,$5)`,bankName,facultyID,accountNumber,IFSC,passbook)
 	if err!=nil{
 		var pSQLError *pq.Error
@@ -116,6 +117,17 @@ func (m *UserModel) HasBankDetails(id int) (bool, error) {
 	stmt:=`SELECT EXISTS(SELECT true FROM account WHERE "FacultyID"=$1)`
 
 	err:=m.DB.QueryRow(stmt, id).Scan(&exists)
+
+	return exists, err
+}
+
+func (m *UserModel) CheckAccountNumber(accNo int64) (bool, error) {
+	var exists bool
+
+
+	stmt:=`SELECT EXISTS(SELECT true FROM account WHERE "AccountNumber"=$1)`
+
+	err:=m.DB.QueryRow(stmt, accNo).Scan(&exists)
 
 	return exists, err
 }

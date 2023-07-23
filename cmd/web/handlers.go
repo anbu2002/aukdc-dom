@@ -414,6 +414,15 @@ func (app *application) addDetailsPost(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
+	
+	check, err := app.user.CheckAccountNumber(form.AccountNumber)
+	if check {
+		data := app.newTemplateData(r)
+		form.AddFieldError("accountno", "Account Number already exists")
+		data.Form = form
+		app.render(w, http.StatusUnprocessableEntity, "first-login.tmpl", data)
+		return
+	}
 
 	err = app.user.Insert(form.FacultyID, form.Name, form.Phone, form.Email, form.FacultyType, form.Department, form.Designation, form.Password, form.PanID, pan, form.Extension, esign)
 	if err != nil {
