@@ -67,9 +67,12 @@ if (qc) {
 			none = document.querySelectorAll('.none');
 			none[0].classList.add('active');
 			none[0].classList.remove('none');
+			document.getElementById('kc').disabled = true;
 		}else{
 			none[0].classList.remove('active');
 			none[0].classList.add('none');
+			document.getElementById('kc').value = 0;
+			document.getElementById('kc').disabled = false;
 		}
 	});
 }

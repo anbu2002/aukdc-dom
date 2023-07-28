@@ -9,7 +9,7 @@
 	<table class="center details">
 		<tr>
 			<th rowspan="2">SI.No</th>
-			<th rowspan="2">Course Code</th>
+			<th rowspan="2">Course Code/Regulation</th>
 			<th rowspan="2" width="200">Course Title</th>
 			<th colspan="2">No.Of</th>
 			<th colspan="2">Rate per</th>
@@ -25,7 +25,7 @@
 		<tr height="90">
 			<td rowspan="1">1</td>
 			{{with $course1 := index .Courses 1}}
-			<td rowspan="1">{{$course1.CourseCode}}</td>
+			<td rowspan="1">{{$course1.CourseCode}}/{{$course1.Regulation}}</td>
 			<td rowspan="1">{{$course1.Title}}</td>
 			{{end}}
 			<td rowspan="1">{{1}}</td>
@@ -37,7 +37,7 @@
 		<tr height="180">
 			<td rowspan="3">{{.QPK.QuestionPaperCount}}</td>
 			{{with $course2 := index .Courses 0}}
-			<td rowspan="3">{{$course2.CourseCode}}</td>
+			<td rowspan="3">{{$course2.CourseCode}}/{{$course2.Regulation}}</td>
 			<td rowspan="3">{{$course2.Title}}</td>
 			{{end}}
 			<td rowspan="3">{{1}}</td>

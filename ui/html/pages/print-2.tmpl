@@ -10,7 +10,7 @@
 		<tr>
 			<th>SI.No</th>
 			<th>Branch</th>
-			<th>Course Code</th>
+			<th>Course Code/Regulation</th>
 			<th width="200">Course Title</th>
 			<th>Rate per Answer Script</th>
 			<th>No. of Answer Script Valued</th>
@@ -20,7 +20,7 @@
 			<td rowspan="3">1</td>
 			{{with index .Courses 0}}
 			<td rowspan="3">{{.Branch}}</td>
-			<td rowspan="3">{{.CourseCode}}</td>
+			<td rowspan="3">{{.CourseCode}}/{{.Regulation}}</td>
 			<td rowspan="3">{{.Title}}</td>
 			{{end}}
 			<td rowspan="3">Rs. 20/-<br>(min. Rs. 100/-)</td>

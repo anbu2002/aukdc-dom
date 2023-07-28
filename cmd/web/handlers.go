@@ -620,3 +620,20 @@ func (app *application) facultyViewAll(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, http.StatusOK, "faculty.tmpl", data)
 }
+
+func (app *application) deleteHonorariumPost(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
+	hid := params.ByName("hid")
+	
+	check, err := app.honorarium.DeleteHonorarium(hid)
+	if err != nil{
+		app.serverError(w, err)
+		return
+	}
+	if check{
+		app.sessionManager.Put(r.Context(), "flash", "Honorarium successfully deleted")
+	}else{
+		app.sessionManager.Put(r.Context(), "flash", "Honorarium was not deleted")
+	}
+	http.Redirect(w, r, "/honorarium/", http.StatusSeeOther)
+}

@@ -1,6 +1,7 @@
 {{define "title"}}Honorarium #{{.Honorarium.TransactionID}}{{end}}
 {{define "main"}}
 {{$iaz:=.IsAuthorized}}
+{{$token := .CSRFToken}}
 <table>
 {{with .QPK}}
 	<tr>
@@ -55,6 +56,14 @@
 	</tr>
 </table>
 <div class="right"><a {{if $iaz}}href="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/print"{{else}}href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}/generate"{{end}} >Print Preview</a></div>
+{{if $iaz}}
+<div class="left">
+<form action="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/delete" method='POST'>
+<input type='hidden' name='csrf_token' value='{{$token}}'/>
+<button type="submit">Delete</button>
+</form>
+</div>
+{{end}}
 {{end}}
 {{end}}
 

@@ -59,7 +59,7 @@ func (m *HonorariumModel) InsertValuedPaper(facultyID int, branch, courseCode st
 	initialAmount:=answerScriptRate*float32(answerScriptCount)
 	finalAmount:=initialAmount-initialAmount*tds
 	if(finalAmount<100){
-		finalAmount=100
+		finalAmount=100 - 100*tds
 	}else if finalAmount>5000 || finalAmount==0{
 		return "",ErrExceed
 	}
@@ -137,6 +137,18 @@ func (m *HonorariumModel) GetTransactionAdmin(TransactionID string) (*Honorarium
 	}
 	return s, nil
 }
+
+func (m *HonorariumModel) DeleteHonorarium(transactionId string) (bool, error){
+	query := `DELETE FROM Honorarium WHERE "TransactionID" = $1`
+
+	_, err:= m.DB.Exec(query, transactionId)
+	if err != nil {
+        return false, err
+    }
+	return true, nil
+
+}
+
 func (m *HonorariumModel) ViewAll(FacultyID int) ([]*Honorarium, error) {
 	honoraria:= []*Honorarium{}
 	stmt:=`SELECT * FROM honorarium WHERE ("FacultyID"`

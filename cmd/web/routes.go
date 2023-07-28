@@ -49,6 +49,7 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/faculty/view", authorized.ThenFunc(app.facultyViewAll))
 	router.Handler(http.MethodGet, "/faculty/view/:fid", authorized.ThenFunc(app.facultyView))
 	router.Handler(http.MethodGet, "/faculty/view/:fid/honorarium/:hid/print", authorized.ThenFunc(app.generatePrint))
+	router.Handler(http.MethodPost, "/faculty/view/:fid/honorarium/:hid/delete", authorized.ThenFunc(app.deleteHonorariumPost))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	return standard.Then(router)
