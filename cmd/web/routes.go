@@ -21,25 +21,23 @@ func (app *application) routes() http.Handler {
 
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
-	router.Handler(http.MethodGet, "/faculty/signup", dynamic.ThenFunc(app.facultySignup))
-	router.Handler(http.MethodPost, "/faculty/signup", dynamic.ThenFunc(app.facultySignupPost))
+	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
 	router.Handler(http.MethodGet, "/user/login", dynamic.ThenFunc(app.userLogin))
 	router.Handler(http.MethodPost, "/user/login", dynamic.ThenFunc(app.userLoginPost))
 	
 	protected := dynamic.Append(app.requireAuthentication)
 
-	router.Handler(http.MethodGet, "/", protected.ThenFunc(app.home))
-	router.Handler(http.MethodGet, "/honorarium/view/", protected.ThenFunc(app.facultyView))
 	router.Handler(http.MethodPost, "/user/logout", protected.ThenFunc(app.userLogoutPost))
 	router.Handler(http.MethodGet, "/honorarium/view/:tyid/:hid", protected.ThenFunc(app.honorariumView))
 	router.Handler(http.MethodGet, "/honorarium/view/:tyid/:hid/generate", protected.ThenFunc(app.generatePrint))
 	
 
-	faculty:=protected.Append(app.requireFaculty, app.checkBankDetails)
-	router.Handler(http.MethodGet, "/faculty/bankdetails", faculty.ThenFunc(app.addBankDetails))
-	router.Handler(http.MethodPost, "/faculty/bankdetails", faculty.ThenFunc(app.addBankDetailsPost))
+	faculty:=protected.Append(app.requireFaculty, app.checkFacultyDetails)
+	router.Handler(http.MethodGet, "/faculty/details", faculty.ThenFunc(app.addDetails))
+	router.Handler(http.MethodPost, "/faculty/details", faculty.ThenFunc(app.addDetailsPost))
 
-	faculty=faculty.Append(app.requireBankDetails)
+	faculty=faculty.Append(app.requireFacultyDetails)
+	router.Handler(http.MethodGet, "/honorarium/view/", faculty.ThenFunc(app.facultyView))
 	router.Handler(http.MethodGet, "/honorarium/create/qpk", faculty.ThenFunc(app.qpkCreate))
 	router.Handler(http.MethodPost, "/honorarium/create/qpk", faculty.ThenFunc(app.qpkCreatePost))
 	router.Handler(http.MethodGet, "/honorarium/create/ansv", faculty.ThenFunc(app.ansvCreate))
@@ -47,9 +45,11 @@ func (app *application) routes() http.Handler {
 
 	authorized := protected.Append(app.requireAuthority)
 
+	router.Handler(http.MethodGet, "/honorarium/", authorized.ThenFunc(app.facultyView))
 	router.Handler(http.MethodGet, "/faculty/view", authorized.ThenFunc(app.facultyViewAll))
 	router.Handler(http.MethodGet, "/faculty/view/:fid", authorized.ThenFunc(app.facultyView))
 	router.Handler(http.MethodGet, "/faculty/view/:fid/honorarium/:hid/print", authorized.ThenFunc(app.generatePrint))
+	router.Handler(http.MethodPost, "/faculty/view/:fid/honorarium/:hid/delete", authorized.ThenFunc(app.deleteHonorariumPost))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	return standard.Then(router)

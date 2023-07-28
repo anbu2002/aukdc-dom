@@ -38,10 +38,23 @@ func (m *OtherModel) GetCourse(coursecode string) (*Course, error) {
 	}
 	return s, nil
 }
+func (m *OtherModel) GetProgramme(branch string) (*Programme, error){
+	s := &Programme{}
+	
+	err:= m.DB.QueryRow(`SELECT * FROM Programme WHERE "Branch" = $1`, branch).Scan(&s.Degree, &s.Branch, &s.DepartmentName, &s.DegreeType)
+	if err !=nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+	return s, nil
+}
 
-func (m *OtherModel) GetAllBranches() ([]*Programme, error){
+func (m *OtherModel) GetAllProgrammes() ([]*Programme, error){
 	programmes:=[]*Programme{}
-	rows, err:=m.DB.Query(`SELECT "Branch" FROM Programme`)
+	rows, err:=m.DB.Query(`SELECT "Degree","Branch","DegreeType" FROM Programme`)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +63,7 @@ func (m *OtherModel) GetAllBranches() ([]*Programme, error){
 
 	for rows.Next(){
 		s:=&Programme{}
-		err=rows.Scan(&s.Branch)
+		err=rows.Scan(&s.Degree, &s.Branch, &s.DegreeType)
 		if err != nil {
 			return nil, err
 		}

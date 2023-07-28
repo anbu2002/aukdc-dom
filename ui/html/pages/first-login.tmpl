@@ -1,0 +1,187 @@
+{{define "title"}}Faculty Details{{end}}
+{{define "main"}}
+
+<form action='/faculty/details' method='POST' enctype="multipart/form-data" id="facDetails" novalidate>
+<input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+<div class="tab active">
+<fieldset>
+  <legend>Personalia:</legend>
+<div>
+<label>Faculty ID:</label>
+{{with .Form.FieldErrors.facultyid}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='number' name='facultyid' placeholder='{{.Form.FacultyID}}' required>
+</div>
+
+<div>
+<label>Name:</label>
+{{with .Form.FieldErrors.name}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='name' value='{{.Form.Name}}' required>
+</div>
+
+
+<div class="left">
+<label>Phone Number:</label>
+{{with .Form.FieldErrors.phone}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='tel' name='phone' {{with .Form.Phone}} value='{{.}}'{{end}} required>
+</div>
+
+<div class="right">
+<label>Extension Number:</label>
+{{with .Form.FieldErrors.extnumber}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='tel' name='extnumber'{{with .Form.Extension}} value='{{.}}' {{end}} required>
+</div>
+
+<div>
+<label>Email:</label>
+{{with .Form.FieldErrors.email}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='email' name='email' value='{{.Form.Email}}' required>
+</div>
+
+<div>
+<label>Department:</label>
+{{with .Form.FieldErrors.dept}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='dept' value='{{.Form.Department}}' required>
+</div> 
+
+<div class="left">
+<label>Faculty Type:</label>
+{{with .Form.FieldErrors.facultytype}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="facultytype">
+  <option disabled selected> Select an option </option>
+  <option value="Permanent">Permanent</option>
+  <option value="Visiting">Visiting</option>
+  <option value="Contract/Guest">Contract/Guest</option>
+</select>
+</div>
+
+<div class="right">
+<label>Designation:</label>
+{{with .Form.FieldErrors.designation}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="designation">
+  <option disabled selected> Select an option </option>
+  <option value="Professor">Professor</option>
+  <option value="Assistant Professor">Assistant Professor</option>
+  <option value="Assistant Professor (SLG)">Associate Professor (SLG)</option>
+  <option value="Assistant Professor (SRG)">Associate Professor (SRG)</option>
+  <option value="Emeritus Professor">Emeritus Professor</option>
+  <option value="Teaching Fellow">Teaching Fellow</option>
+</select>
+</div>
+
+<div>
+<label>PanID:</label>
+{{with .Form.FieldErrors.panid}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='panid' value='{{.Form.PanID}}' required>
+</div>
+
+<div class="left">
+<label>PanPicture:</label>
+{{with .Form.FieldErrors.panpic}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='file' class="imageInput" name="panpic" value='{{.Form.PanPicture}}' accept='image/*'>
+<div class="imagePreview"><img src="/static/img/180.png"></div>
+</div>
+
+<div class="right">
+<label>E-sign:</label>
+{{with .Form.FieldErrors.esign}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='file' class="imageInput" name="esign" value='{{.Form.Esign}}' accept='image/*' >
+<div class="imagePreview"><img src="/static/img/180.png"></div>
+</div>
+
+<div class="left">
+<label>Password:</label>
+{{with .Form.FieldErrors.password}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='password' name='password'>
+</div>
+<div class="right">
+<label>Confirm Password:</label>
+{{with .Form.FieldErrors.password}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='password' name='cpassword'>
+</div>
+</fieldset>
+<button type="button" class="stepButton">Next</button>
+</div>
+<div class="tab">
+<fieldset>
+  <legend>Bank Details:</legend>
+<div>
+<label>Bank Name:</label>
+{{with .Form.FieldErrors.bankname}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="bankname">
+  <option disabled selected > Select an option </option>
+  <option value="Canara Bank">Canara Bank</option>
+  <option value="Indian Bank">Indian Bank</option>
+  <option value="State Bank of India">State Bank of India</option>
+</select>
+</div>
+
+<div class="left">
+<label>Account Number:</label>
+{{with .Form.FieldErrors.accountno}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='number' name='accountno' placeholder=''>
+</div>
+
+<div class="right">
+<label>Confirm Account Number:</label>
+{{with .Form.FieldErrors.accountno}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='password' name='caccountno' placeholder=''>
+</div>
+
+<div>
+<label>IFSC Code:</label>
+{{with .Form.FieldErrors.IFSC}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input type='text' name='IFSC'>
+</div>
+
+<div>
+<label>Passbook:</label>
+{{with .Form.FieldErrors.passbook}}
+<label class='error'>{{.}}</label>
+{{end}}
+<input class="imageInput" type='file' name="passbook" value='{{.Form.Passbook}}' accept='image/*'>
+<div class="imagePreview"><img src="/static/img/180.png"></div>
+</div>
+
+</fieldset>
+<button type="button" class="stepButton">Previous</button>
+</div>
+
+<div> 
+<input type="submit"></input>
+</div>
+</form>
+{{end}}

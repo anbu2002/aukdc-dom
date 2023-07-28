@@ -67,3 +67,4 @@ func Matches(value string, rx *regexp.Regexp) bool {
 func IntegerRange(value int64, min, max int64) bool {
         return value <= max && value >= min
 }
+

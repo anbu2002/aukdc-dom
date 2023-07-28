@@ -11,7 +11,7 @@ import(
 func secureHeaders(next http.Handler) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		w.Header().Set("Content-Security-Policy",
-		"default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com")
+		"default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' data:")
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "deny")
@@ -65,10 +65,10 @@ func (app *application) authenticate(next http.Handler) http.Handler {
                  if exists {
                         ctx:=context.WithValue(r.Context(), isAuthenticatedContextKey, true)
                         r=r.WithContext(ctx)
-			id=app.sessionManager.GetInt(r.Context(), "authorizedUserID")
+						id=app.sessionManager.GetInt(r.Context(), "authorizedUserID")
                         if id==0 {
                                 ctx=context.WithValue(r.Context(), isFacultyContextKey, true)
-                        	r=r.WithContext(ctx)
+								r=r.WithContext(ctx)
                                 next.ServeHTTP(w, r)
                                 return
                         }
@@ -85,7 +85,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
                  next.ServeHTTP(w, r)
         })
 }
-func (app *application) checkBankDetails(next http.Handler) http.Handler{
+func (app *application) checkFacultyDetails(next http.Handler) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id:=app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
 		exists,err:=app.user.HasBankDetails(id)
@@ -137,12 +137,11 @@ func (app *application) requireAuthority(next http.Handler) http.Handler{
                 next.ServeHTTP(w, r)
         })
 }
-func (app *application) requireBankDetails(next http.Handler) http.Handler{
+func (app *application) requireFacultyDetails(next http.Handler) http.Handler{
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		if !app.hasBankDetails(r){
-			fmt.Println("here")
-			app.sessionManager.Put(r.Context(), "flash", "Please add your bank details")
-			http.Redirect(w, r, "/faculty/bankdetails", http.StatusSeeOther)
+			app.sessionManager.Put(r.Context(), "flash", "Please add your details first")
+			http.Redirect(w, r, "/faculty/details", http.StatusSeeOther)
 			return
 		} 
                 w.Header().Add("Cache-Control","no-store")

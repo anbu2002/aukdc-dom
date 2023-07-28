@@ -10,9 +10,7 @@ import (
 
 	"io"
 	"mime/multipart"
-	"os"
 	"strings"
-	"strconv"
 
 	"github.com/go-playground/form/v4"
 	"github.com/justinas/nosurf"
@@ -41,10 +39,10 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 	}
 	buf := new(bytes.Buffer)
 	var err error
-	if strings.Contains(page,"print"){
-		err=ts.ExecuteTemplate(buf,"printb",data)
-	}else {
-		err= ts.ExecuteTemplate(buf, "base", data)
+	if strings.Contains(page, "print") {
+		err = ts.ExecuteTemplate(buf, "printb", data)
+	} else {
+		err = ts.ExecuteTemplate(buf, "base", data)
 	}
 	if err != nil {
 		app.serverError(w, err)
@@ -110,26 +108,20 @@ func (app *application) hasBankDetails(r *http.Request) bool {
 	}
 	return hasBankDetails
 }
-//to optimize
-func (app *application) uploadImage(picture multipart.File, picID, imageName string) (error) {
 
-	file, err := os.OpenFile("uploads/"+picID+"/"+imageName, os.O_EXCL|os.O_WRONLY|os.O_CREATE, 0400)
-
-	defer file.Close()
-	if err != nil {
-		return err
+func (app *application) convertImage(file multipart.File)([]byte, error) {
+	imageData := make([]byte, 0)
+	buf := make([]byte, 4096)
+	for {
+		n, err := file.Read(buf)
+		if n == 0 || err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
+		}
+		imageData = append(imageData, buf[:n]...)
 	}
-	io.Copy(file, picture)
-
-	return nil
+	return imageData, nil
 }
-func (app *application) createImagePath(handler *multipart.FileHeader, picID string, id int)(string){
 
-	facID:=strconv.Itoa(id)
-	splitsName := strings.Split(handler.Filename, ".")
-	var lenfilename = len(splitsName)
-
-	image:= facID+"_"+picID+"."+splitsName[lenfilename-1]
-
-	return image
-}

@@ -15,6 +15,8 @@
 {{end}}
 </select>
 </div>
+<div class="clearfix">
+<div class="left">
 
 <div>
 <label>Course Code:</label>
@@ -28,14 +30,30 @@
 {{end}}
 </select>
 </div>
+</div>
 
+<div class="right none">
+<div>
+<label>Course Code:</label>
+{{with .Form.FieldErrors.coursecode}}
+<label class='error'>{{.}}</label>
+{{end}}
+<select name="coursecode2">
+  <option disabled selected > Select an option </option>
+{{range .Courses}}
+  <option value="{{.CourseCode}}">{{.CourseCode}}</option>
+{{end}}
+</select>
+</div>
+</div>
+</div>
 
 <div>
 <label>Question Paper Count:</label>
 {{with .Form.FieldErrors.qpc}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='number' name='qc'>
+<input type='number' name='qc' id='qc'>
 </div>
 
 <div>
@@ -43,7 +61,7 @@
 {{with .Form.FieldErrors.kc}}
 <label class='error'>{{.}}</label>
 {{end}}
-<input type='number' name='kc'>
+<input type='number' name='kc' id='kc'>
 </div>
 
 

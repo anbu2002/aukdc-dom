@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
+	//"fmt"
 
 	"github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
@@ -19,7 +20,7 @@ type BankDetails struct{
 	BankName string
 	AccountNumber int64
 	IFSC string
-	Passbook string
+	Passbook []byte
 }
 type Faculty struct{
 	User
@@ -27,9 +28,9 @@ type Faculty struct{
 	DepartmentName string
 	Designation string
 	PanID string
-	PanPicture string
+	PanPicture []byte
 	Extension int64
-	Esign string
+	Esign []byte
 	TDS float32
 	BankDetails 
 }
@@ -39,7 +40,7 @@ type UserModel struct{
 }
 
 
-func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email, facultyType, department, designation,  password, panID, panPicture string, extensionNumber int64, eSign string) error {
+func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email, facultyType, department, designation,  password, panID string, panPicture []byte, extensionNumber int64, eSign []byte) error {
 	tdsper:=0.1
 	if facultyType=="Visiting" || facultyType=="Contract/Guest" {
 		tdsper=0.0
@@ -75,13 +76,18 @@ func (m *UserModel) Insert(facultyID int, name string, phoneNumber int64, email,
 	return nil
 }
 
-func (m *UserModel) InsertBankDetails(facultyID int, bankName string, accountNumber int64, IFSC, passbook string) error{
+func (m *UserModel) InsertBankDetails(facultyID int, bankName string, accountNumber int64, IFSC string, passbook []byte) error{
+
 	_,err:=m.DB.Exec(`INSERT INTO account("BankName","FacultyID","AccountNumber","IFSCCode","Passbook") VALUES ($1,$2,$3,$4,$5)`,bankName,facultyID,accountNumber,IFSC,passbook)
 	if err!=nil{
 		var pSQLError *pq.Error
 		if errors.As(err, &pSQLError){
-			if pSQLError.Code == "23505" && strings.Contains(pSQLError.Message, "account__pkey"){
-				return ErrDuplicateAccNo
+			if pSQLError.Code == "23505" || pSQLError.Code == "23503"{
+				}else if strings.Contains(pSQLError.Message, "account_pkey"){
+					return ErrDuplicateID
+				if strings.Contains(pSQLError.Message, "account_AccountNumber_key"){
+					return ErrDuplicateAccNo
+				}
 			}
 		return err
 		}
@@ -114,6 +120,18 @@ func (m *UserModel) HasBankDetails(id int) (bool, error) {
 
 	return exists, err
 }
+
+func (m *UserModel) CheckAccountNumber(accNo int64) (bool, error) {
+	var exists bool
+
+
+	stmt:=`SELECT EXISTS(SELECT true FROM account WHERE "AccountNumber"=$1)`
+
+	err:=m.DB.QueryRow(stmt, accNo).Scan(&exists)
+
+	return exists, err
+}
+
 func (m *UserModel) Authenticate(facultyID int, password string) (int, error) {
 	var id int
 	var hashedPassword []byte
@@ -123,7 +141,16 @@ func (m *UserModel) Authenticate(facultyID int, password string) (int, error) {
 	err:=m.DB.QueryRow(stmt, facultyID).Scan(&id, &hashedPassword)
 	if err!=nil{
 		if errors.Is(err, sql.ErrNoRows){
-			return 0, ErrInvalidCredentials
+			stmt:=`SELECT "FacultyID" FROM Temp_Faculty where "FacultyID"=$1 AND "Password"=$2`
+			err:=m.DB.QueryRow(stmt, facultyID,&password).Scan(&id)
+			if err!=nil{
+					if errors.Is(err, sql.ErrNoRows){
+						return 0, ErrInvalidCredentials
+					}else{
+						return 0, err
+					}
+				}
+				return id, nil
 		}else {
 			return 0, err
 		}
@@ -156,6 +183,10 @@ func (m *UserModel) Exists(id int) (bool, error) {
 	stmt:=`SELECT EXISTS(SELECT true FROM users WHERE "ID"=$1)`
 
 	err:=m.DB.QueryRow(stmt, id).Scan(&exists)
+	if !exists{
+		stmt:=`SELECT EXISTS(SELECT true FROM Temp_Faculty WHERE "FacultyID"=$1)`
+		err=m.DB.QueryRow(stmt, id).Scan(&exists)
+	}
 
 	return exists, err
 }
@@ -163,7 +194,7 @@ func (m *UserModel) Exists(id int) (bool, error) {
 
 func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
         faculties:= []*Faculty{}
-        rows, err:= m.DB.Query(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","DepartmentName","Designation","PanID","PanPicture","ExtensionNumber","Esign" ,"TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "RoleID"=2`)
+        rows, err:= m.DB.Query(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","DepartmentName","Designation","PanID","ExtensionNumber","TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "RoleID"=2`)
         if err != nil {
                 return nil, err
         }
@@ -171,7 +202,7 @@ func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
 
         for rows.Next(){
                 s:=&Faculty{}
-                err=rows.Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.DepartmentName, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign,&s.TDS)
+                err=rows.Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.DepartmentName, &s.Designation, &s.PanID, &s.Extension,&s.TDS)
         if err != nil {
                 return nil, err
         }
@@ -186,8 +217,7 @@ func (m *UserModel) ViewAllFaculty() ([]*Faculty, error) {
 
 func (m *UserModel) GetFaculty(fid int) (*Faculty, error) {
         s := &Faculty{}
-
-        err:= m.DB.QueryRow(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","DepartmentName","Designation","PanID","PanPicture","ExtensionNumber","Esign","TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "ID"=$1`,fid).Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.DepartmentName, &s.Designation, &s.PanID, &s.PanPicture, &s.Extension, &s.Esign,&s.TDS)
+        err:= m.DB.QueryRow(`SELECT "ID","Name","PhoneNumber","Email","FacultyType","DepartmentName","Designation","PanID","ExtensionNumber","TDS" FROM users FULL JOIN Faculty ON "ID"="FacultyID" WHERE "ID"=$1`,fid).Scan(&s.ID, &s.Name, &s.Phone, &s.Email, &s.FacultyType, &s.DepartmentName, &s.Designation, &s.PanID, &s.Extension, &s.TDS)
         if err != nil {
                 if errors.Is(err, sql.ErrNoRows) {
                         return nil, ErrNoRecord
@@ -197,3 +227,28 @@ func (m *UserModel) GetFaculty(fid int) (*Faculty, error) {
         }
         return s, nil
 }
+
+func (m *UserModel) GetFacultyStage(id int) (*Faculty, error){
+
+	s := &Faculty{}
+	query := `SELECT "Name", "DepartmentName", "Designation" FROM Temp_Faculty WHERE "FacultyID" = $1`
+
+	err:= m.DB.QueryRow(query, &id).Scan(&s.Name, &s.DepartmentName, &s.Designation)
+	if err != nil {
+        return nil, err
+    }
+	return s, nil
+
+}
+
+func (m *UserModel) RemoveFacultyStage(id int) (bool, error){
+	query := `DELETE FROM Temp_Faculty WHERE "FacultyID" = $1`
+
+	_, err:= m.DB.Exec(query, id)
+	if err != nil {
+        return false, err
+    }
+	return true, nil
+
+}
+

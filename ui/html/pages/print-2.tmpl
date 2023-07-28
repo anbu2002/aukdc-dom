@@ -1,16 +1,16 @@
 {{define "main"}}	
-                <tr>
-                        <td>Mobile Number/Extn. Number:</td>
-			<td>{{.Faculty.Phone}}<br>{{.Faculty.Extension}}</td>
-                        <td>PAN No:<br>(Mandatory)</td>
-                        <td>{{.Faculty.PanID}}</td>
+		<tr>
+		<td>Mobile Number/Extn. Number:</td>
+		<td>{{.Faculty.Phone}}<br>{{.Faculty.Extension}}</td>
+		<td>PAN No:<br>(Mandatory)</td>
+		<td>{{.Faculty.PanID}}</td>
 		</tr>
 	</table>
 	<table class="center details">
 		<tr>
 			<th>SI.No</th>
 			<th>Branch</th>
-			<th>Course Code</th>
+			<th>Course Code/Regulation</th>
 			<th width="200">Course Title</th>
 			<th>Rate per Answer Script</th>
 			<th>No. of Answer Script Valued</th>
@@ -18,9 +18,11 @@
 		</tr>
 		<tr height="180">
 			<td rowspan="3">1</td>
-			<td rowspan="3">{{.VP.Branch}}</td>
-			<td rowspan="3">{{.Course.CourseCode}}</td>
-			<td rowspan="3">{{.Course.Title}}</td>
+			{{with index .Courses 0}}
+			<td rowspan="3">{{.Branch}}</td>
+			<td rowspan="3">{{.CourseCode}}/{{.Regulation}}</td>
+			<td rowspan="3">{{.Title}}</td>
+			{{end}}
 			<td rowspan="3">Rs. 20/-<br>(min. Rs. 100/-)</td>
 			<td>{{.VP.AnswerScriptCount}}</td>
 		</tr>
@@ -39,13 +41,13 @@
 		</tr>
 	</table>
 	<div class="center">
-	<p> Recieved a sum of Ru.................(Rupees.......................................................................only). which is the amount after TDS @10%</p>
+	<p> Recieved a sum of ₹.................(Rupees.......................................................................only). which is the amount after TDS @10%</p>
 	<p class="left">Date:</p>
 	<p class="right">Signature:</p>
 	..............................................................................................................................................................<br><strong>Recieved the foil sheets and answer sheets after verification</strong>
 	<div>
 		<p class="textalign">Office Use</p>
-		<p> Passed a sum of Ru.................(Rupees............................................................................). TDS amount Ru...................(Rupees...................................................................) to be remitted in favour of PAN No..........................................</p>
+		<p> Passed a sum of ₹.................(Rupees............................................................................). TDS amount ₹...................(Rupees...................................................................) to be remitted in favour of PAN No..........................................</p>
 	<p class="right">DCOE:</p>
 	</div>
 	</div>

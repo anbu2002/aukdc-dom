@@ -1,6 +1,7 @@
 {{define "title"}}Honorarium #{{.Honorarium.TransactionID}}{{end}}
 {{define "main"}}
 {{$iaz:=.IsAuthorized}}
+{{$token := .CSRFToken}}
 <table>
 {{with .QPK}}
 	<tr>
@@ -31,7 +32,7 @@
 	</tr>
 	{{end}}
 {{end}}
-	{{with .Honorarium}}
+{{with .Honorarium}}
 	<tr>
 	<th>Branch:</th>
         <td>{{.Branch}}</td>
@@ -54,11 +55,28 @@
 	</tr>
 	</tr>
 </table>
-	<a class="right" {{if $iaz}}href="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/print"{{else}}href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}/generate"{{end}} >Print Preview</a>
-        {{end}}
+<div class="right"><a {{if $iaz}}href="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/print"{{else}}href="/honorarium/view/{{.TypeID}}/{{.TransactionID}}/generate"{{end}} >Print Preview</a></div>
+{{if $iaz}}
+<div class="left">
+<form action="/faculty/view/{{.FacultyID}}/honorarium/{{.TransactionID}}/delete" method='POST'>
+<input type='hidden' name='csrf_token' value='{{$token}}'/>
+<button type="submit">Delete</button>
+</form>
+</div>
 {{end}}
+{{end}}
+{{end}}
+
 {{define "sidebar"}}
 {{with .Faculty}}
+<dialog id="dialog">
+    <div class="modal"> 
+        <span class="close"><a href="#!" class="close">X</a></span>
+        <img class="modal-content" src="/static/uploads/panpic/{{.PanPicture}}" alt="PanPicture">
+        <div id="caption">{{.PanPicture}}</div>
+    </div>
+</dialog>
+
 <button id="openbtn">Faculty Details</button>  
 <div id="rightside">
 <table>
@@ -91,7 +109,7 @@
 </tr>
 <tr>
     <th>Pan ID</th> 
-    <td>{{.PanID}}</td>
+    <td><a href="#dialog">{{.PanID}}</a></td>
 </tr>
 <tr>
     <th>TDS</th> 

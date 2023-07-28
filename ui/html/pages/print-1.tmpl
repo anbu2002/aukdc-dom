@@ -1,7 +1,7 @@
 {{define "main"}}	
 	<tr>
 		<td>Branch:</td>
-		<td>{{.Course.Branch}}</td>
+		<td>{{with index .Courses 0}}{{.Branch}}{{end}}</td>
 		<td>PAN No:<br>(Mandatory)</td>
 		<td>{{.Faculty.PanID}}</td>
 	</tr>
@@ -9,7 +9,7 @@
 	<table class="center details">
 		<tr>
 			<th rowspan="2">SI.No</th>
-			<th rowspan="2">Course Code</th>
+			<th rowspan="2">Course Code/Regulation</th>
 			<th rowspan="2" width="200">Course Title</th>
 			<th colspan="2">No.Of</th>
 			<th colspan="2">Rate per</th>
@@ -21,14 +21,30 @@
 			<th>QP (2000/-)</th>
 			<th>Key (3000/-)</th>
 		</tr>
+		{{if eq .QPK.QuestionPaperCount 2}}
+		<tr height="90">
+			<td rowspan="1">1</td>
+			{{with $course1 := index .Courses 1}}
+			<td rowspan="1">{{$course1.CourseCode}}/{{$course1.Regulation}}</td>
+			<td rowspan="1">{{$course1.Title}}</td>
+			{{end}}
+			<td rowspan="1">{{1}}</td>
+			<td rowspan="1">{{.QPK.KeyCount}}</td>
+			<td rowspan="1">{{.QPK.QuestionPaperRate}}</td>
+			<td>{{multiplyFloatInt .QPK.KeyRate .QPK.KeyCount}}<td>
+		</tr>
+		{{end}}
 		<tr height="180">
-			<td rowspan="3">1</td>
-			<td rowspan="3">{{.Course.CourseCode}}</td>
-			<td rowspan="3">{{.Course.Title}}</td>
 			<td rowspan="3">{{.QPK.QuestionPaperCount}}</td>
+			{{with $course2 := index .Courses 0}}
+			<td rowspan="3">{{$course2.CourseCode}}/{{$course2.Regulation}}</td>
+			<td rowspan="3">{{$course2.Title}}</td>
+			{{end}}
+			<td rowspan="3">{{1}}</td>
 			<td rowspan="3">{{.QPK.KeyCount}}</td>
 			<td rowspan="3">{{.QPK.QuestionPaperRate}}</td>
-			<td>{{.QPK.KeyRate}}<td>
+			<td>{{multiplyFloatInt .QPK.KeyRate .QPK.KeyCount}}<td>
+		</tr>
 		<tr height="50">
 			<td class="noBorder">Total</td>
 			<td>{{.QPK.InitialAmount}}</td>
@@ -42,10 +58,10 @@
 			<td colspan="2" style="text-align:right">Final Amount</td>
 			<td>{{.QPK.FinalAmount}}</td>
 		</tr>
+
 	</table>
 	<div class="center">
-	<p> Recieved a sum of Ru.................(Rupees.......................................................................only). which is the amount after TDS @10%</p>
-	<br>
+	<p> Recieved a sum of ₹.................(Rupees.......................................................................only). which is the amount after TDS @10%</p>
 	<div>
 	<p class="left">Date:</p>
 	<p class="right">Signature:</p>
@@ -53,7 +69,7 @@
 	..............................................................................................................................................................
 	<div>
 		<p class="textalign">Office Use</p>
-		<p> Passed a sum of Ru.................(Rupees............................................................................). TDS amount Ru...................(Rupees...................................................................) to be remitted in favour of PAN No..........................................</p>
+		<p> Passed a sum of ₹.................(Rupees............................................................................). TDS amount ₹...................(Rupees...................................................................) to be remitted in favour of PAN No..........................................</p>
 	<p class="right">DCOE:</p>
 	</div>
 	</div>

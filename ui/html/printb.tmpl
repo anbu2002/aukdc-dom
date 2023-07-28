@@ -18,7 +18,7 @@
                 </th>
                 </tr>
                 <tr class="noBorder"><td>
-                        UG/PG(FT/PT) Examinations - ..............20.....
+                       {{with index .Programmes 0}} ({{.Degree}})({{.DegreeType}}){{end}} Examinations - ..............20.....
                 </td></tr>
         </table>
        <table class="center">
@@ -58,7 +58,7 @@
  <main>
   {{template "main" .}}
  </main>
- <script src="/static/js/main.js" type="text/javascript"></script>
+ <script src="/static/js/print.js" type="text/javascript"></script>
 </body>
 </html>
 {{end}}

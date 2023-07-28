@@ -3,6 +3,8 @@
 <form action='/honorarium/create/ansv' method='POST'>
 <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
 
+<div class="clearfix">
+<div class="left">
 <div>
 <label>Branch:</label>
 {{with .Form.FieldErrors.branch}}
@@ -26,6 +28,8 @@
   <option value="{{.CourseCode}}">{{.CourseCode}}</option>
 {{end}}
 </select>
+</div>
+</div>
 </div>
 
 <div>

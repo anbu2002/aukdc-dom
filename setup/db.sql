@@ -27,16 +27,17 @@ CREATE TABLE Role
     "Role" character varying NOT NULL CHECK ("Role" in ('Admin','Faculty','Both')),
      PRIMARY KEY ("RoleID")
 );
+
 CREATE TABLE Faculty
 (
     "FacultyID" int NOT NULL REFERENCES Users("ID") ON DELETE CASCADE,
     "FacultyType" character varying NOT NULL CHECK ("FacultyType" in ('Permanent','Contract/Guest','Visiting')),
     "DepartmentName" character varying NOT NULL REFERENCES Department("DepartmentName") ON DELETE CASCADE,
-    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SG)')),
+    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor and Head', 'Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SRG)', 'Assistant Professor (SLG)')),
     "PanID" character varying(10) NOT NULL UNIQUE,
-    "PanPicture" character varying NOT NULL,
+    "PanPicture" BYTEA NOT NULL,
     "ExtensionNumber" bigint NOT NULL CHECK ("ExtensionNumber" BETWEEN 20000000 AND 99999999) UNIQUE,
-    "Esign" character varying NOT NULL,
+    "Esign" BYTEA NOT NULL,
     "TDS" real NOT NULL,
      PRIMARY KEY ("FacultyID")
 );
@@ -45,9 +46,9 @@ CREATE TABLE Account
 (
     "BankName" character varying NOT NULL CHECK ("BankName" in ('Canara Bank', 'Indian Bank','State Bank of India')),
     "FacultyID" int NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
-    "AccountNumber" bigint NOT NULL,
+    "AccountNumber" bigint NOT NULL UNIQUE,
     "IFSCCode" character varying NOT NULL,
-    "Passbook" character varying NOT NULL,
+    "Passbook" BYTEA NOT NULL,
      PRIMARY KEY ("FacultyID")
 );
 
@@ -75,8 +76,8 @@ CREATE TABLE Honorarium
 (
     "TransactionID" character varying NOT NULL,
     "FacultyID" int NOT NULL REFERENCES Faculty("FacultyID") ON DELETE CASCADE,
-    "Branch" character varying NOT NULL REFERENCES Programme("Branch"),
-    "CourseCode" character varying NOT NULL REFERENCES Course("CourseCode") ON DELETE CASCADE,
+    "Branch" character varying NOT NULL,
+    "CourseCode" character varying NOT NULL ,
     "InitialAmount" integer NOT NULL,
     "FinalAmount" integer NOT NULL,
     "TypeID" integer NOT NULL REFERENCES HonorariumType("TypeID"),
@@ -135,6 +136,17 @@ CREATE TABLE sessions (
      expiry TIMESTAMPTZ NOT NULL
 );
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; 
+CREATE TABLE Temp_Faculty
+(
+    "FacultyID" int NOT NULL,
+    "Name" character varying NOT NULL,
+    "Designation" character varying NOT NULL CHECK ("Designation" in ('Professor and Head', 'Professor','Assistant Professor', 'Associate Professor','Teaching Fellow', 'Emeritus Professor', 'Assistant Professor (SRG)', 'Assistant Professor (SLG)')),
+    "DepartmentName" character varying NOT NULL REFERENCES Department("DepartmentName") ON DELETE CASCADE,
+    "Password" character varying NOT NULL DEFAULT(uuid_generate_v4()),
+    UNIQUE ("Password")
+);
+
 INSERT INTO HonorariumType("TypeID","Type") VALUES(2,'Paper Valuation'), (1, 'Question Paper/Key');
 INSERT INTO Role("RoleID","Role") VALUES(1,'Admin'), (2, 'Faculty'), (3, 'Both');
 INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") VALUES(12345,'test',9876543210,'fac@gmail.com','$2a$12$qIIvAsFFmf979hkMXZhsbuTAhBGmr8oQFbqXY4fO/bCYTXItyaD92',1);
@@ -143,6 +155,7 @@ INSERT INTO Users("ID","Name","PhoneNumber","Email","HashedPassword","RoleID") V
 \i setup/copy/programmelist.sql
 \i setup/copy/courselist-2015.sql
 \i setup/copy/courselist-2019.sql
+\i setup/copy/faculty.sql
 
 CREATE VIEW co_offeredin_pro AS SELECT "Degree","Branch","DegreeType","DepartmentName","CourseCode","Title","Regulation" FROM Course FULL JOIN Programme ON Course."OfferedIn"=Programme."DepartmentName";
 
@@ -156,9 +169,12 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.Course TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public."Paper Valuation" TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public."Question Paper/Key" TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.TimeTable TO webaukdcdom;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.Admin TO webaukdcdom;
+/*
+	GRANT SELECT, INSERT, UPDATE, DELETE ON public.Admin TO webaukdcdom;
+*/
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Honorarium TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Department TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Programme TO webaukdcdom;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.Users TO webaukdcdom;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.Temp_Faculty TO webaukdcdom;
 GRANT SELECT ON public.co_offeredin_pro TO webaukdcdom;
